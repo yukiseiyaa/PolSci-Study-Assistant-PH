@@ -50,23 +50,43 @@
             min-height: 100vh;
         }
 
-        .hamburger-menu {
+        .sidebar-toggle {
             display: none;
             position: fixed;
-            top: 16px;
-            left: 16px;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
             z-index: 1500;
-            background: var(--color-bg-elevated);
+            background: var(--color-accent);
             border: none;
-            padding: 10px 14px;
-            border-radius: 8px;
+            width: 42px;
+            height: 84px;
+            border-top-right-radius: 12px;
+            border-bottom-right-radius: 12px;
+            padding: 6px;
             cursor: pointer;
             box-shadow: var(--shadow-md);
-            font-size: 1.4rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        .hamburger-menu:hover {
-            background: var(--color-bg-surface);
+        .sidebar-toggle:hover {
+            background: var(--color-accent-hover);
+        }
+
+        .sidebar-toggle .chev {
+            width: 0;
+            height: 0;
+            border-top: 8px solid transparent;
+            border-bottom: 8px solid transparent;
+            border-left: 12px solid white;
+            transition: transform 0.25s ease;
+            transform: translateX(0);
+        }
+
+        .sidebar-toggle.active .chev {
+            transform: translateX(4px) rotate(180deg);
         }
 
         .sidebar-overlay {
@@ -786,8 +806,8 @@
         }
 
         @media (max-width: 768px) {
-            .hamburger-menu {
-                display: block;
+            .sidebar-toggle {
+                display: flex;
             }
 
             .app-wrapper {
@@ -830,7 +850,7 @@
 <body>
     <div id="notificationContainer" class="notification-container"></div>
     
-    <button class="hamburger-menu" onclick="toggleSidebar()">☰</button>
+    <button id="sidebarToggle" class="sidebar-toggle" aria-expanded="false" onclick="toggleSidebar()" aria-label="Toggle sidebar"><span class="chev"></span></button>
     <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
     
     <div class="app-wrapper">
@@ -1727,16 +1747,9 @@ Padayon! You've got this! 🚀`;
 
             const card = flashcardsData[currentFlashcardIndex];
             document.getElementById('flashcardDisplay').innerHTML = `
-                <div class="flashcard-container">
-                    <div class="flashcard" onclick="event.stopPropagation(); this.classList.toggle('flipped')">
-                        <div class="flashcard-face">
-                            <h2>${card.front}</h2>
-                            <p style="color: var(--color-text-secondary); margin-top: 20px;">(Click to flip)</p>
-                        </div>
-                        <div class="flashcard-back">
-                            <p>${card.back}</p>
-                        </div>
-                    </div>
+                <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                    <h2>${card.front}</h2>
+                    <p style="color: var(--color-text-secondary); margin-top: 20px;">(Click to flip)</p>
                 </div>
                 <p style="text-align: center; color: var(--color-text-secondary); margin-top: 10px;">
                     Card ${currentFlashcardIndex + 1} of ${flashcardsData.length}
@@ -1955,6 +1968,38 @@ Padayon! You've got this! 🚀`;
             return new Date(dateStr).toLocaleDateString('en-US', options);
         }
 
+        // Sidebar toggle override (ensures behavior is consistent and uses a side arrow)
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            const btn = document.getElementById('sidebarToggle');
+            if (!sidebar) return;
+            const isActive = sidebar.classList.toggle('active');
+            if (overlay) overlay.classList.toggle('active', isActive);
+            if (btn) {
+                btn.classList.toggle('active', isActive);
+                btn.setAttribute('aria-expanded', isActive ? 'true' : 'false');
+            }
+        }
+
+        // Close sidebar when clicking outside (for small screens)
+        document.addEventListener('click', function (e) {
+            const sidebar = document.getElementById('sidebar');
+            const toggle = document.getElementById('sidebarToggle');
+            const overlay = document.getElementById('sidebarOverlay');
+            if (!sidebar || !toggle) return;
+            if (sidebar.classList.contains('active')) {
+                const clickedInsideSidebar = sidebar.contains(e.target);
+                const clickedToggle = toggle === e.target || toggle.contains(e.target);
+                if (!clickedInsideSidebar && !clickedToggle) {
+                    sidebar.classList.remove('active');
+                    overlay && overlay.classList.remove('active');
+                    toggle.classList.remove('active');
+                    toggle.setAttribute('aria-expanded', 'false');
+                }
+            }
+        });
+
         // Initialize
         loadFlashcards();
         loadTimeline();
@@ -1962,3 +2007,5 @@ Padayon! You've got this! 🚀`;
     </script>
 </body>
 </html>
+
+
