@@ -926,6 +926,10 @@
                         <label>Relevance/Tags:</label>
                         <input type="text" id="adminRelevance" placeholder="e.g., Important for understanding BARMM">
                     </div>
+                    <div class="form-group">
+                        <label>Article Link (optional):</label>
+                        <input type="url" id="adminLink" placeholder="https://example.com/full-article">
+                    </div>
                     <button onclick="addArticle()" style="width: 100%; margin-bottom: 12px;">+ Add Article</button>
                     <button onclick="clearAdminForm()" class="btn-secondary" style="width: 100%;">Clear Form</button>
                 </div>
@@ -1325,6 +1329,7 @@
             const content = document.getElementById('adminContent').value.trim();
             const date = document.getElementById('adminDate').value;
             const relevance = document.getElementById('adminRelevance').value.trim();
+            const link = document.getElementById('adminLink') ? document.getElementById('adminLink').value.trim() : '';
 
             if (!title || !content || !date) {
                 showNotification('Missing Info', 'Please fill in title, content, and date.', 'warning');
@@ -1336,6 +1341,7 @@
                 id: Date.now(),
                 title: title,
                 content: content,
+                link: link,
                 date: date,
                 relevance: relevance,
                 createdAt: new Date().toISOString()
@@ -1365,6 +1371,7 @@
             document.getElementById('adminContent').value = '';
             document.getElementById('adminDate').value = '';
             document.getElementById('adminRelevance').value = '';
+            if (document.getElementById('adminLink')) document.getElementById('adminLink').value = '';
         }
 
         function loadAdminArticles() {
@@ -1376,16 +1383,21 @@
                 return;
             }
 
-            list.innerHTML = articles.map(article => `
+            list.innerHTML = articles.map(article => {
+                const linkBtn = article.link ? `<a href="${article.link}" target="_blank" rel="noopener" class="btn" style="padding:6px 10px; margin-right:8px; font-size:0.8rem;">Open</a>` : '';
+                return `
                 <div class="article-item">
                     <div class="article-info">
                         <strong>${article.title}</strong>
                         <small>📅 ${article.date}</small><br>
                         <small style="display: block; margin-top: 4px; color: var(--color-text-primary);">${article.content.substring(0, 60)}...</small>
                     </div>
-                    <button class="btn-delete" onclick="deleteArticle(${article.id})">Delete</button>
+                    <div style="display:flex; align-items:flex-start; gap:8px;">
+                        ${linkBtn}
+                        <button class="btn-delete" onclick="deleteArticle(${article.id})">Delete</button>
+                    </div>
                 </div>
-            `).join('');
+            `}).join('');
         }
 
         function selectQuizType(type) {
@@ -1944,15 +1956,17 @@ Padayon! You've got this! 🚀`;
 
             let newsHTML = '';
             if (newsItems.length === 0) {
-                newsHTML = '<p style="color: var(--color-text-secondary); text-align: center; padding: 20px;">No articles available at this time.</p>';
+                newsHTML = '<p style="color: var(--color-text-secondary); text-align: center; padding: 20px;'>No articles available at this time.</p>';
             } else {
                 newsItems.forEach(item => {
+                    const linkHTML = item.link ? `<p style="margin-top:8px;"><a href="${item.link}" target="_blank" rel="noopener" style="color: var(--color-accent); font-weight:600;">Read full article →</a></p>` : '';
                     newsHTML += `
                         <div class="news-item">
                             <div class="news-date">${item.date}</div>
                             <h4 style="color: var(--color-accent); margin-bottom: 8px;">${item.title}</h4>
                             <p style="margin-bottom: 8px;">${item.content}</p>
-                            <p style="color: var(--color-text-secondary); font-style: italic; font-size: 0.9rem;">
+                            ${linkHTML}
+                            <p style="color: var(--color-text-secondary); font-style: italic; font-size: 0.9rem; margin-top:10px;">
                                 📌 ${item.relevance}
                             </p>
                         </div>
