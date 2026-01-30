@@ -926,6 +926,10 @@
                         <label>Relevance/Tags:</label>
                         <input type="text" id="adminRelevance" placeholder="e.g., Important for understanding BARMM">
                     </div>
+                    <div class="form-group">
+                        <label>Article Link (optional):</label>
+                        <input type="url" id="adminLink" placeholder="https://example.com/full-article">
+                    </div>
                     <button onclick="addArticle()" style="width: 100%; margin-bottom: 12px;">+ Add Article</button>
                     <button onclick="clearAdminForm()" class="btn-secondary" style="width: 100%;">Clear Form</button>
                 </div>
@@ -1114,9 +1118,9 @@
                             <div class="form-group">
                                 <label>Quiz Format:</label>
                                 <div class="quiz-type-selector">
-                                    <div class="quiz-type-btn active" onclick="selectQuizType('multiple')">Multiple Choice</div>
-                                    <div class="quiz-type-btn" onclick="selectQuizType('identification')">Identification</div>
-                                    <div class="quiz-type-btn" onclick="selectQuizType('enumeration')">Enumeration</div>
+                                    <div class="quiz-type-btn active" onclick="selectQuizType('multiple', this)">Multiple Choice</div>
+                                    <div class="quiz-type-btn" onclick="selectQuizType('identification', this)">Identification</div>
+                                    <div class="quiz-type-btn" onclick="selectQuizType('enumeration', this)">Enumeration</div>
                                 </div>
                             </div>
                             <div class="grid-2">
@@ -1325,6 +1329,7 @@
             const content = document.getElementById('adminContent').value.trim();
             const date = document.getElementById('adminDate').value;
             const relevance = document.getElementById('adminRelevance').value.trim();
+            const link = document.getElementById('adminLink') ? document.getElementById('adminLink').value.trim() : '';
 
             if (!title || !content || !date) {
                 showNotification('Missing Info', 'Please fill in title, content, and date.', 'warning');
@@ -1336,6 +1341,7 @@
                 id: Date.now(),
                 title: title,
                 content: content,
+                link: link,
                 date: date,
                 relevance: relevance,
                 createdAt: new Date().toISOString()
@@ -1365,6 +1371,7 @@
             document.getElementById('adminContent').value = '';
             document.getElementById('adminDate').value = '';
             document.getElementById('adminRelevance').value = '';
+            if (document.getElementById('adminLink')) document.getElementById('adminLink').value = '';
         }
 
         function loadAdminArticles() {
@@ -1376,24 +1383,29 @@
                 return;
             }
 
-            list.innerHTML = articles.map(article => `
+            list.innerHTML = articles.map(article => {
+                const linkBtn = article.link ? `<a href="${article.link}" target="_blank" rel="noopener" class="btn" style="padding:6px 10px; margin-right:8px; font-size:0.8rem;">Open</a>` : '';
+                return `
                 <div class="article-item">
                     <div class="article-info">
                         <strong>${article.title}</strong>
                         <small>📅 ${article.date}</small><br>
                         <small style="display: block; margin-top: 4px; color: var(--color-text-primary);">${article.content.substring(0, 60)}...</small>
                     </div>
-                    <button class="btn-delete" onclick="deleteArticle(${article.id})">Delete</button>
+                    <div style="display:flex; align-items:flex-start; gap:8px;">
+                        ${linkBtn}
+                        <button class="btn-delete" onclick="deleteArticle(${article.id})">Delete</button>
+                    </div>
                 </div>
-            `).join('');
+            `}).join('');
         }
 
-        function selectQuizType(type) {
+        function selectQuizType(type, el) {
             currentQuizType = type;
             document.querySelectorAll('.quiz-type-btn').forEach(btn => {
                 btn.classList.remove('active');
             });
-            event.target.classList.add('active');
+            if (el && el.classList) el.classList.add('active');
             showNotification('Quiz Type Changed', `Switched to ${type === 'multiple' ? 'Multiple Choice' : type === 'identification' ? 'Identification' : 'Enumeration'} mode`, 'success');
         }
 
@@ -1531,7 +1543,7 @@ Padayon! You've got this! 🚀`;
 
         function generateQuiz() {
             const topic = document.getElementById('quizTopic').value;
-            const count = parseInt(document.getElementById('quizCount').value);
+            const count = parseInt(document.getElementById('quizCount').value) || 5;
             
             showNotification('Quiz Loading...', `Generating ${currentQuizType} quiz`, 'info');
 
@@ -1579,25 +1591,37 @@ Padayon! You've got this! 🚀`;
 
             let quizHTML = '';
             selectedQuestions.forEach((item, index) => {
-                quizHTML += `
-                    <div class="quiz-question">
-                        <strong>Question ${index + 1}:</strong> ${item.q}
-                        <div class="quiz-options">
-                            ${item.options.map((opt, i) => `
-                                <div class="quiz-option" onclick="selectAnswer(${index}, ${i})">
-                                    <input type="radio" name="q${index}" id="q${index}_${i}" value="${i}" style="margin-right: 8px;">
-                                    <label for="q${index}_${i}" style="cursor: pointer; margin: 0;">${opt}</label>
-                                </div>
-                            `).join('')}
+                if (currentQuizType === 'multiple') {
+                    quizHTML += `
+                        <div class="quiz-question">
+                            <strong>Question ${index + 1}:</strong> ${item.q}
+                            <div class="quiz-options">
+                                ${item.options.map((opt, i) => `
+                                    <div class="quiz-option" onclick="selectAnswer(${index}, ${i})">
+                                        <input type="radio" name="q${index}" id="q${index}_${i}" value="${i}" style="margin-right: 8px;">
+                                        <label for="q${index}_${i}" style="cursor: pointer; margin: 0;">${opt}</label>
+                                    </div>
+                                `).join('')}
+                            </div>
                         </div>
-                    </div>
-                `;
+                    `;
+                } else {
+                    // Identification / Enumeration: show text input
+                    quizHTML += `
+                        <div class="quiz-question">
+                            <strong>Question ${index + 1}:</strong> ${item.q}
+                            <div class="quiz-options">
+                                <input type="text" id="q${index}_text" placeholder="Type your answer here" style="width:100%; padding:10px; margin-top:8px; border-radius:6px; border:1px solid var(--color-border);">
+                            </div>
+                        </div>
+                    `;
+                }
             });
 
             document.getElementById('quizContainer').innerHTML = quizHTML;
             document.getElementById('submitQuiz').style.display = 'block';
             document.getElementById('quizResults').style.display = 'none';
-            showNotification('Quiz Ready!', `${count} questions loaded. Good luck!`, 'success');
+            showNotification('Quiz Ready!', `${selectedQuestions.length} questions loaded. Good luck!`, 'success');
         }
 
         function selectAnswer(questionIndex, optionIndex) {
@@ -1610,25 +1634,43 @@ Padayon! You've got this! 🚀`;
         function checkAnswers() {
             let correct = 0;
             let totalQuestions = quizData.length;
-            
-            quizData.forEach((item, index) => {
-                const userAnswer = userAnswers[index];
-                const options = document.querySelectorAll(`input[name="q${index}"]`);
-                
-                options.forEach((opt, i) => {
-                    opt.parentElement.classList.remove('selected');
-                    if (i === item.correct) {
-                        opt.parentElement.classList.add('correct');
-                    }
-                    if (userAnswer === i && i !== item.correct) {
-                        opt.parentElement.classList.add('incorrect');
-                    }
-                });
 
-                if (userAnswer === item.correct) correct++;
+            quizData.forEach((item, index) => {
+                if (currentQuizType === 'multiple') {
+                    const userAnswer = userAnswers[index];
+                    const options = document.querySelectorAll(`input[name="q${index}"]`);
+
+                    options.forEach((opt, i) => {
+                        opt.parentElement.classList.remove('selected');
+                        if (i === item.correct) {
+                            opt.parentElement.classList.add('correct');
+                        }
+                        if (userAnswer === i && i !== item.correct) {
+                            opt.parentElement.classList.add('incorrect');
+                        }
+                    });
+
+                    if (userAnswer === item.correct) correct++;
+                } else {
+                    // identification / enumeration: compare text answers
+                    const inputEl = document.getElementById(`q${index}_text`);
+                    const userText = inputEl ? inputEl.value.trim().toLowerCase() : '';
+                    const expected = (item.options && item.options[item.correct]) ? String(item.options[item.correct]).trim().toLowerCase() : '';
+
+                    // simple match; for enumeration allow comma-separated partial matches
+                    if (currentQuizType === 'enumeration' && expected.includes(',')) {
+                        const expectedParts = expected.split(',').map(s => s.trim()).filter(Boolean);
+                        const userParts = userText.split(',').map(s => s.trim()).filter(Boolean);
+                        // count matches
+                        const matches = expectedParts.filter(ep => userParts.some(up => up === ep));
+                        if (matches.length >= 1) correct++;
+                    } else {
+                        if (userText && expected && userText === expected) correct++;
+                    }
+                }
             });
 
-            const percentage = Math.round((correct / totalQuestions) * 100);
+            const percentage = totalQuestions === 0 ? 0 : Math.round((correct / totalQuestions) * 100);
             let grade, message, emoji;
             
             if (percentage >= 90) {
@@ -1951,15 +1993,17 @@ Padayon! You've got this! 🚀`;
 
             let newsHTML = '';
             if (newsItems.length === 0) {
-                newsHTML = '<p style="color: var(--color-text-secondary); text-align: center; padding: 20px;">No articles available at this time.</p>';
+                newsHTML = '<p style="color: var(--color-text-secondary); text-align: center; padding: 20px;'>No articles available at this time.</p>';
             } else {
                 newsItems.forEach(item => {
+                    const linkHTML = item.link ? `<p style="margin-top:8px;"><a href="${item.link}" target="_blank" rel="noopener" style="color: var(--color-accent); font-weight:600;">Read full article →</a></p>` : '';
                     newsHTML += `
                         <div class="news-item">
                             <div class="news-date">${item.date}</div>
                             <h4 style="color: var(--color-accent); margin-bottom: 8px;">${item.title}</h4>
                             <p style="margin-bottom: 8px;">${item.content}</p>
-                            <p style="color: var(--color-text-secondary); font-style: italic; font-size: 0.9rem;">
+                            ${linkHTML}
+                            <p style="color: var(--color-text-secondary); font-style: italic; font-size: 0.9rem; margin-top:10px;">
                                 📌 ${item.relevance}
                             </p>
                         </div>
@@ -2014,3 +2058,5 @@ Padayon! You've got this! 🚀`;
     </script>
 </body>
 </html>
+
+
