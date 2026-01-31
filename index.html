@@ -8,7 +8,7 @@
     <meta property="og:title" content="PolSci Study Assistant PH">
     <meta property="og:description" content="Master Philippine Political Science with AI-powered study tools. Free, no subscription required.">
     <meta property="og:type" content="website">
-    <title>PolSci Study Assistant PH</title>
+    <title>PolSci Study Assistant PH - index.html</title>
     <style>
         :root {
             --color-bg-base: #fafbfc;
@@ -803,7 +803,7 @@
             border-radius: 10px;
             margin-top: 20px;
             white-space: pre-wrap;
-            max-height: 500px;
+            max-height: 600px;
             overflow-y: auto;
             border: 1px solid var(--color-border);
             box-shadow: var(--shadow);
@@ -812,9 +812,27 @@
             color: var(--color-text-primary);
         }
 
+        .output-box::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .output-box::-webkit-scrollbar-track {
+            background: var(--color-bg-elevated);
+            border-radius: 4px;
+        }
+
+        .output-box::-webkit-scrollbar-thumb {
+            background: var(--color-border);
+            border-radius: 4px;
+        }
+
+        .output-box::-webkit-scrollbar-thumb:hover {
+            background: var(--color-accent);
+        }
+
         @media (max-width: 768px) {
             .content-wrapper {
-                padding: 60px 20px 32px 20px;
+                padding: 32px 20px;
             }
 
             .hero h1 {
@@ -829,6 +847,21 @@
                 grid-template-columns: 1fr;
                 gap: 16px;
             }
+
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+
+            .admin-content {
+                margin: 20px;
+                padding: 24px;
+            }
+
+            .notification-container {
+                right: 12px;
+                left: 12px;
+                max-width: none;
+            }
         }
 
         @media (max-width: 480px) {
@@ -842,6 +875,16 @@
 
             .hero h1 {
                 font-size: 1.6rem;
+            }
+
+            button, .btn {
+                padding: 10px 20px;
+                font-size: 0.9rem;
+            }
+
+            .flashcard {
+                padding: 32px 24px;
+                min-height: 240px;
             }
         }
     </style>
@@ -1075,9 +1118,12 @@
                                     <option value="deanslist">Dean's Lister Target</option>
                                     <option value="cse">CSE Preparation</option>
                                 </select>
-                            </div>
-                            <button onclick="generateStudyPlan()">Generate Study Plan</button>
-                            <div id="studyPlanOutput" class="output-box" style="display: none;"></div>
+                            </div>            <button onclick="generateStudyPlan()">Generate Study Plan</button>
+            <div id="studyPlanOutput" class="output-box" style="display: none;"></div>
+            <div style="margin-top: 16px; display: none;" id="studyPlanActions">
+                <button onclick="copyToClipboard('studyPlanOutput')" class="btn-secondary" style="margin-right: 8px;">📋 Copy Plan</button>
+                <button onclick="printContent('studyPlanOutput')" class="btn-secondary">🖨️ Print Plan</button>
+            </div>
                         </div>
                     </div>
 
@@ -1097,9 +1143,12 @@
                                     <option value="bullets">Bullet Points</option>
                                     <option value="mindmap">Mind Map Format</option>
                                 </select>
-                            </div>
-                            <button onclick="generateSummary()">Create Summary</button>
-                            <div id="summaryOutput" class="output-box" style="display: none;"></div>
+                            </div>            <button onclick="generateSummary()">Create Summary</button>
+            <div id="summaryOutput" class="output-box" style="display: none;"></div>
+            <div style="margin-top: 16px; display: none;" id="summaryActions">
+                <button onclick="copyToClipboard('summaryOutput')" class="btn-secondary" style="margin-right: 8px;">📋 Copy Summary</button>
+                <button onclick="clearSummary()" class="btn-secondary">🗑️ Clear</button>
+            </div>
                         </div>
                     </div>
 
@@ -1135,7 +1184,17 @@
                             </div>
                             <button onclick="generateQuiz()">Start Quiz</button>
                             <div id="quizContainer" class="quiz-container"></div>
+                            <div id="quizProgress" style="display: none; margin-top: 16px;">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                    <span style="color: var(--color-text-secondary); font-size: 0.9rem;">Progress</span>
+                                    <span id="quizProgressText" style="color: var(--color-accent); font-weight: 600; font-size: 0.9rem;">0/0 answered</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div id="quizProgressBar" class="progress-fill" style="width: 0%;"></div>
+                                </div>
+                            </div>
                             <button id="submitQuiz" style="display: none; margin-top: 24px;" onclick="checkAnswers()">Submit Answers</button>
+                            <button id="resetQuiz" style="display: none; margin-top: 24px; margin-left: 12px;" class="btn-secondary" onclick="resetQuiz()">Reset Quiz</button>
                             <div id="quizResults" style="display: none; margin-top: 24px;"></div>
                         </div>
                     </div>
@@ -1153,11 +1212,11 @@
                                     <option value="institutions">Government Institutions</option>
                                 </select>
                             </div>
-                            <div id="flashcardDisplay"></div>
-                            <div style="text-align: center; margin-top: 24px; display: flex; justify-content: center; gap: 12px;">
-                                <button class="btn-secondary" onclick="prevFlashcard()">← Previous</button>
-                                <button class="btn-secondary" onclick="nextFlashcard()">Next →</button>
-                            </div>
+                            <div id="flashcardDisplay"></div>            <div style="text-align: center; margin-top: 24px; display: flex; justify-content: center; gap: 12px; flex-wrap: wrap;">
+                <button class="btn-secondary" onclick="prevFlashcard()">← Previous</button>
+                <button class="btn-secondary" onclick="shuffleFlashcards()">🔀 Shuffle</button>
+                <button class="btn-secondary" onclick="nextFlashcard()">Next →</button>
+            </div>
                         </div>
                     </div>
 
@@ -1427,6 +1486,7 @@
             const section = document.getElementById(sectionId);
             if (section) {
                 section.classList.add('active');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
             }
             
             const buttons = document.querySelectorAll('.nav-btn');
@@ -1513,7 +1573,68 @@ Padayon! You've got this! 🚀`;
 
             document.getElementById('studyPlanOutput').textContent = plan;
             document.getElementById('studyPlanOutput').style.display = 'block';
+            document.getElementById('studyPlanActions').style.display = 'block';
             showNotification('Study Plan Ready!', 'Your personalized study plan has been generated', 'success');
+        }
+
+        function copyToClipboard(elementId) {
+            const element = document.getElementById(elementId);
+            const text = element.textContent;
+            
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(() => {
+                    showNotification('Copied!', 'Content copied to clipboard', 'success');
+                }).catch(() => {
+                    fallbackCopy(text);
+                });
+            } else {
+                fallbackCopy(text);
+            }
+        }
+
+        function fallbackCopy(text) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                document.execCommand('copy');
+                showNotification('Copied!', 'Content copied to clipboard', 'success');
+            } catch (err) {
+                showNotification('Copy Failed', 'Please copy manually', 'error');
+            }
+            document.body.removeChild(textarea);
+        }
+
+        function printContent(elementId) {
+            const element = document.getElementById(elementId);
+            const content = element.textContent;
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <html>
+                <head>
+                    <title>PolSci Study Assistant - Print</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; padding: 40px; line-height: 1.6; }
+                        pre { white-space: pre-wrap; word-wrap: break-word; }
+                    </style>
+                </head>
+                <body>
+                    <pre>${content}</pre>
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+            printWindow.print();
+        }
+
+        function clearSummary() {
+            document.getElementById('summarizerInput').value = '';
+            document.getElementById('summaryOutput').style.display = 'none';
+            document.getElementById('summaryActions').style.display = 'none';
+            showNotification('Cleared', 'Summary cleared', 'info');
         }
 
         function generateSummary() {
@@ -1544,6 +1665,7 @@ Padayon! You've got this! 🚀`;
 
             document.getElementById('summaryOutput').textContent = summary;
             document.getElementById('summaryOutput').style.display = 'block';
+            document.getElementById('summaryActions').style.display = 'block';
             showNotification('Summary Ready!', 'Your text has been summarized', 'success');
         }
 
@@ -1551,15 +1673,23 @@ Padayon! You've got this! 🚀`;
             const topic = document.getElementById('quizTopic').value;
             const count = parseInt(document.getElementById('quizCount').value);
             
+            if (count < 5 || count > 20) {
+                showNotification('Invalid Count', 'Please choose between 5-20 questions', 'warning');
+                return;
+            }
+            
             showNotification('Quiz Loading...', `Generating ${currentQuizType} quiz`, 'info');
 
             const multipleChoiceBank = {
                 constitution: [
-                    { q: 'What year was the current Philippine Constitution ratified?', options: ['1935', '1973', '1987', '2001'], correct: 2 },
-                    { q: 'How many articles does the 1987 Constitution have?', options: ['16', '18', '20', '22'], correct: 1 },
-                    { q: 'Which article covers the Bill of Rights?', options: ['Article II', 'Article III', 'Article IV', 'Article V'], correct: 1 },
-                    { q: 'The principle of separation of church and state is found in which article?', options: ['Article I', 'Article II', 'Article III', 'Article VI'], correct: 1 },
-                    { q: 'What is the minimum age requirement for a Senator?', options: ['30', '35', '40', '45'], correct: 1 }
+                    { q: 'What year was the current Philippine Constitution ratified?', options: ['1935', '1973', '1987', '2001'], correct: 2, explanation: 'The 1987 Constitution was ratified on February 2, 1987, following the EDSA People Power Revolution.' },
+                    { q: 'How many articles does the 1987 Constitution have?', options: ['16', '18', '20', '22'], correct: 1, explanation: 'The 1987 Constitution has 18 articles covering national territory, state principles, bill of rights, and other fundamental provisions.' },
+                    { q: 'Which article covers the Bill of Rights?', options: ['Article II', 'Article III', 'Article IV', 'Article V'], correct: 1, explanation: 'Article III of the 1987 Constitution contains the Bill of Rights, protecting individual liberties and freedoms.' },
+                    { q: 'The principle of separation of church and state is found in which article?', options: ['Article I', 'Article II', 'Article III', 'Article VI'], correct: 1, explanation: 'Article II (Declaration of Principles and State Policies) establishes the separation of Church and State in Section 6.' },
+                    { q: 'What is the minimum age requirement for a Senator?', options: ['30', '35', '40', '45'], correct: 1, explanation: 'Under Article VI, Section 3, Senators must be at least 35 years old, a natural-born citizen, able to read and write, a registered voter, and a resident of the Philippines for at least 2 years.' },
+                    { q: 'How many Senators are there in the Philippine Senate?', options: ['12', '18', '24', '30'], correct: 2, explanation: 'The Senate is composed of 24 Senators elected at-large by qualified voters for a term of 6 years.' },
+                    { q: 'What is the term limit for the Philippine President?', options: ['4 years, renewable once', '6 years, no reelection', '6 years, renewable once', '8 years maximum'], correct: 1, explanation: 'Article VII, Section 4 states the President shall serve a single 6-year term without reelection.' },
+                    { q: 'Which body has the sole power to try and decide impeachment cases?', options: ['House of Representatives', 'Senate', 'Supreme Court', 'Ombudsman'], correct: 1, explanation: 'Article XI, Section 3 grants the Senate the sole power to try and decide all cases of impeachment with at least 2/3 vote required for conviction.' }
                 ],
                 edsa: [
                     { q: 'When did the EDSA People Power Revolution occur?', options: ['Feb 22-25, 1983', 'Feb 22-25, 1986', 'Feb 22-25, 1989', 'Feb 22-25, 1990'], correct: 1 },
@@ -1569,11 +1699,12 @@ Padayon! You've got this! 🚀`;
                     { q: 'How long did Marcos rule the Philippines?', options: ['10 years', '15 years', '20 years', '25 years'], correct: 2 }
                 ],
                 barmm: [
-                    { q: 'What does BARMM stand for?', options: ['Bangsamoro Autonomous Region in Muslim Mindanao', 'Bangsamoro Administrative Region', 'Basic Autonomous Region', 'Bangsamoro Alliance'], correct: 0 },
-                    { q: 'When was the Bangsamoro Organic Law signed?', options: ['2016', '2017', '2018', '2019'], correct: 2 },
-                    { q: 'When are the first Bangsamoro Parliamentary Elections scheduled?', options: ['May 12, 2025', 'October 13, 2025', 'March 30, 2026', 'May 11, 2026'], correct: 2 },
-                    { q: 'How many Members of Parliament will be elected in BARMM?', options: ['60', '70', '80', '90'], correct: 2 },
-                    { q: 'The BARMM replaces which previous autonomous region?', options: ['ARMM', 'MILF', 'MNLF', 'BIAF'], correct: 0 }
+                    { q: 'What does BARMM stand for?', options: ['Bangsamoro Autonomous Region in Muslim Mindanao', 'Bangsamoro Administrative Region', 'Basic Autonomous Region', 'Bangsamoro Alliance'], correct: 0, explanation: 'BARMM stands for Bangsamoro Autonomous Region in Muslim Mindanao, established under RA 11054 (Bangsamoro Organic Law).' },
+                    { q: 'When was the Bangsamoro Organic Law signed?', options: ['2016', '2017', '2018', '2019'], correct: 2, explanation: 'President Duterte signed the Bangsamoro Organic Law (BOL) on July 26, 2018, creating the BARMM political entity.' },
+                    { q: 'When are the first Bangsamoro Parliamentary Elections scheduled?', options: ['May 12, 2025', 'October 13, 2025', 'September 2026', 'May 11, 2026'], correct: 2, explanation: 'The first regular Bangsamoro Parliamentary Elections are tentatively scheduled for September 2026, marking the end of the transition period.' },
+                    { q: 'How many Members of Parliament will be elected in BARMM?', options: ['60', '70', '80', '90'], correct: 2, explanation: 'The Bangsamoro Parliament will have 80 members: 40 from single districts, 32 from party-list, and 8 reserved seats (2 for non-Moro indigenous peoples, 2 for settlers, 2 for women, 2 for youth).' },
+                    { q: 'The BARMM replaces which previous autonomous region?', options: ['ARMM', 'MILF', 'MNLF', 'BIAF'], correct: 0, explanation: 'BARMM replaced the Autonomous Region in Muslim Mindanao (ARMM), which was established in 1989 but faced governance challenges.' },
+                    { q: 'Who is the current Chief Minister of BARMM?', options: ['Nur Misuari', 'Murad Ebrahim', 'Al Haj Murad', 'Ghazali Jaafar'], correct: 1, explanation: 'Ahod Ebrahim (commonly known as Murad Ebrahim), former MILF chairman, serves as Chief Minister during the transition period.' }
                 ],
                 barangay: [
                     { q: 'What is the smallest political unit in the Philippines?', options: ['Municipality', 'Sitio', 'Barangay', 'Purok'], correct: 2 },
@@ -1598,13 +1729,17 @@ Padayon! You've got this! 🚀`;
             let quizHTML = '';
             selectedQuestions.forEach((item, index) => {
                 quizHTML += `
-                    <div class="quiz-question">
-                        <strong>Question ${index + 1}:</strong> ${item.q}
+                    <div class="quiz-question" id="question-${index}">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+                            <strong style="color: var(--color-accent);">Question ${index + 1}:</strong>
+                            <span class="badge badge-primary" style="font-size: 0.75rem;">${topic.toUpperCase()}</span>
+                        </div>
+                        <p style="font-size: 1rem; margin-bottom: 16px; line-height: 1.6;">${item.q}</p>
                         <div class="quiz-options">
                             ${item.options.map((opt, i) => `
                                 <div class="quiz-option" onclick="selectAnswer(${index}, ${i})">
                                     <input type="radio" name="q${index}" id="q${index}_${i}" value="${i}" style="margin-right: 8px;">
-                                    <label for="q${index}_${i}" style="cursor: pointer; margin: 0;">${opt}</label>
+                                    <label for="q${index}_${i}" style="cursor: pointer; margin: 0; flex: 1;">${opt}</label>
                                 </div>
                             `).join('')}
                         </div>
@@ -1614,7 +1749,10 @@ Padayon! You've got this! 🚀`;
 
             document.getElementById('quizContainer').innerHTML = quizHTML;
             document.getElementById('submitQuiz').style.display = 'block';
+            document.getElementById('resetQuiz').style.display = 'none';
             document.getElementById('quizResults').style.display = 'none';
+            document.getElementById('quizProgress').style.display = 'block';
+            updateQuizProgress();
             showNotification('Quiz Ready!', `${count} questions loaded. Good luck!`, 'success');
         }
 
@@ -1623,15 +1761,52 @@ Padayon! You've got this! 🚀`;
             const options = document.querySelectorAll(`input[name="q${questionIndex}"]`);
             options.forEach(opt => opt.parentElement.classList.remove('selected'));
             options[optionIndex].parentElement.classList.add('selected');
+            updateQuizProgress();
+        }
+
+        function updateQuizProgress() {
+            const answered = Object.keys(userAnswers).length;
+            const total = quizData.length;
+            const percentage = Math.round((answered / total) * 100);
+            
+            const progressText = document.getElementById('quizProgressText');
+            const progressBar = document.getElementById('quizProgressBar');
+            
+            if (progressText) progressText.textContent = `${answered}/${total} answered`;
+            if (progressBar) progressBar.style.width = `${percentage}%`;
+        }
+
+        function resetQuiz() {
+            if (confirm('Are you sure you want to reset this quiz? All answers will be cleared.')) {
+                userAnswers = {};
+                document.querySelectorAll('.quiz-option').forEach(opt => {
+                    opt.classList.remove('selected', 'correct', 'incorrect');
+                });
+                document.querySelectorAll('.quiz-explanation').forEach(exp => exp.remove());
+                document.getElementById('submitQuiz').style.display = 'block';
+                document.getElementById('resetQuiz').style.display = 'none';
+                document.getElementById('quizResults').style.display = 'none';
+                updateQuizProgress();
+                showNotification('Quiz Reset', 'You can now retake the quiz', 'info');
+                window.scrollTo({ top: document.getElementById('quizContainer').offsetTop - 100, behavior: 'smooth' });
+            }
         }
 
         function checkAnswers() {
+            if (Object.keys(userAnswers).length < quizData.length) {
+                const unanswered = quizData.length - Object.keys(userAnswers).length;
+                if (!confirm(`You have ${unanswered} unanswered question(s). Submit anyway?`)) {
+                    return;
+                }
+            }
+
             let correct = 0;
             let totalQuestions = quizData.length;
             
             quizData.forEach((item, index) => {
                 const userAnswer = userAnswers[index];
                 const options = document.querySelectorAll(`input[name="q${index}"]`);
+                const questionDiv = document.getElementById(`question-${index}`);
                 
                 options.forEach((opt, i) => {
                     opt.parentElement.classList.remove('selected');
@@ -1641,9 +1816,25 @@ Padayon! You've got this! 🚀`;
                     if (userAnswer === i && i !== item.correct) {
                         opt.parentElement.classList.add('incorrect');
                     }
+                    opt.disabled = true;
                 });
 
                 if (userAnswer === item.correct) correct++;
+
+                // Add explanation
+                if (item.explanation && questionDiv) {
+                    const explanationDiv = document.createElement('div');
+                    explanationDiv.className = 'quiz-explanation';
+                    explanationDiv.style.cssText = 'margin-top: 16px; padding: 12px 16px; background: var(--color-bg-surface); border-left: 3px solid var(--color-accent); border-radius: 6px;';
+                    explanationDiv.innerHTML = `
+                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+                            <span style="font-size: 1.2rem;">${userAnswer === item.correct ? '✅' : '💡'}</span>
+                            <strong style="color: var(--color-accent); font-size: 0.9rem;">${userAnswer === item.correct ? 'Correct!' : 'Explanation:'}</strong>
+                        </div>
+                        <p style="font-size: 0.9rem; color: var(--color-text-secondary); line-height: 1.5; margin: 0;">${item.explanation}</p>
+                    `;
+                    questionDiv.appendChild(explanationDiv);
+                }
             });
 
             const percentage = Math.round((correct / totalQuestions) * 100);
@@ -1708,8 +1899,10 @@ Padayon! You've got this! 🚀`;
                             `}
                         </ul>
                     </div>
-                    <div style="margin-top: 24px; text-align: center; display: flex; gap: 12px; justify-content: center;">
-                        <button onclick="generateQuiz()" style="padding: 12px 24px;">Take Another Quiz</button>
+                    <div style="margin-top: 24px; text-align: center; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+                        <button onclick="resetQuiz(); window.scrollTo({top: document.getElementById('quizContainer').offsetTop - 100, behavior: 'smooth'});" style="padding: 12px 24px;">Retake This Quiz</button>
+                        <button onclick="generateQuiz()" style="padding: 12px 24px;">New Quiz</button>
+                        <button onclick="showSection('flashcards')" class="btn-secondary" style="padding: 12px 24px;">Study Flashcards</button>
                         <button onclick="showSection('home')" class="btn-secondary" style="padding: 12px 24px;">Back to Home</button>
                     </div>
                 </div>
@@ -1788,6 +1981,16 @@ Padayon! You've got this! 🚀`;
         function prevFlashcard() {
             currentFlashcardIndex = currentFlashcardIndex === 0 ? flashcardsData.length - 1 : currentFlashcardIndex - 1;
             displayFlashcard();
+        }
+
+        function shuffleFlashcards() {
+            for (let i = flashcardsData.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [flashcardsData[i], flashcardsData[j]] = [flashcardsData[j], flashcardsData[i]];
+            }
+            currentFlashcardIndex = 0;
+            displayFlashcard();
+            showNotification('Shuffled!', 'Flashcards have been randomized', 'success');
         }
 
         function loadTimeline() {
@@ -2017,3 +2220,4 @@ Padayon! You've got this! 🚀`;
     </script>
 </body>
 </html>
+
