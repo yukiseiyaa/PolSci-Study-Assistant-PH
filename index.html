@@ -1,0 +1,2023 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Philippine Political Science Study Assistant - AI-powered study companion for Filipino PolSci students. Free tools for study planning, summarization, quizzes, flashcards, timelines, and career guidance.">
+    <meta name="keywords" content="PolSci, Philippine Politics, Political Science, Study Tool, Education, Philippines">
+    <meta property="og:title" content="PolSci Study Assistant PH">
+    <meta property="og:description" content="Master Philippine Political Science with AI-powered study tools. Free, no subscription required.">
+    <meta property="og:type" content="website">
+    <title>PolSci Study Assistant PH</title>
+    <style>
+        :root {
+            --color-bg-base: #fafbfc;
+            --color-bg-elevated: #ffffff;
+            --color-bg-surface: #f8f9fa;
+            --color-text-primary: #1a1a1a;
+            --color-text-secondary: #6b7280;
+            --color-accent: #a4373a;
+            --color-accent-hover: #8b2f32;
+            --color-accent-light: #fef3f3;
+            --color-success: #10b981;
+            --color-warning: #f59e0b;
+            --color-danger: #ef4444;
+            --color-border: #e5e7eb;
+            --shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+            --shadow-lg: 0 12px 24px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
+            background: var(--color-bg-base);
+            color: var(--color-text-primary);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .sidebar-toggle {
+            display: none;
+            position: fixed;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 1500;
+            background: var(--color-accent);
+            border: none;
+            width: 42px;
+            height: 84px;
+            border-top-right-radius: 12px;
+            border-bottom-right-radius: 12px;
+            padding: 6px;
+            cursor: pointer;
+            box-shadow: var(--shadow-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .sidebar-toggle:hover {
+            background: var(--color-accent-hover);
+        }
+
+        .sidebar-toggle .chev {
+            width: 0;
+            height: 0;
+            border-top: 8px solid transparent;
+            border-bottom: 8px solid transparent;
+            border-left: 12px solid white;
+            transition: transform 0.25s ease;
+            transform: translateX(0);
+        }
+
+        .sidebar-toggle.active .chev {
+            transform: translateX(4px) rotate(180deg);
+        }
+
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.4);
+            z-index: 999;
+        }
+
+        .sidebar-overlay.active {
+            display: block;
+        }
+
+        .app-wrapper {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: 280px;
+            background: var(--color-bg-elevated);
+            border-right: 1px solid var(--color-border);
+            padding: 24px 0;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: var(--shadow);
+            transition: transform 0.3s ease;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                left: 0;
+                top: 0;
+                height: 100vh;
+                z-index: 1000;
+                transform: translateX(-100%);
+                border-right: none;
+                box-shadow: var(--shadow-lg);
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+        }
+
+        .sidebar-header {
+            padding: 0 20px;
+            margin-bottom: 32px;
+        }
+
+        .sidebar-logo {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--color-accent);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 4px;
+        }
+
+        .sidebar-tagline {
+            font-size: 0.75rem;
+            color: var(--color-text-secondary);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Admin Panel */
+        .admin-panel {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            overflow-y: auto;
+        }
+
+        .admin-panel.active {
+            display: block;
+        }
+
+        .admin-content {
+            background: var(--color-bg-elevated);
+            max-width: 600px;
+            margin: 40px auto;
+            border-radius: 12px;
+            padding: 32px;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .admin-close {
+            float: right;
+            font-size: 1.8rem;
+            cursor: pointer;
+            color: var(--color-text-secondary);
+            border: none;
+            background: none;
+            padding: 0;
+        }
+
+        .admin-close:hover {
+            color: var(--color-accent);
+        }
+
+        .admin-form {
+            clear: both;
+            margin-top: 20px;
+        }
+
+        .articles-list {
+            margin-top: 32px;
+            border-top: 2px solid var(--color-border);
+            padding-top: 24px;
+        }
+
+        .article-item {
+            background: var(--color-bg-surface);
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .article-info {
+            flex-grow: 1;
+        }
+
+        .article-info strong {
+            display: block;
+            color: var(--color-accent);
+            margin-bottom: 4px;
+        }
+
+        .article-info small {
+            color: var(--color-text-secondary);
+            font-size: 0.85rem;
+        }
+
+        .btn-delete {
+            background: var(--color-danger);
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            color: white;
+            border: none;
+        }
+
+        .sidebar-nav {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            padding: 0 12px;
+        }
+
+        .nav-btn {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border: none;
+            background: transparent;
+            color: var(--color-text-secondary);
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            text-align: left;
+            width: 100%;
+        }
+
+        .nav-btn:hover {
+            background: var(--color-bg-surface);
+            color: var(--color-accent);
+        }
+
+        .nav-btn.active {
+            background: var(--color-accent-light);
+            color: var(--color-accent);
+            font-weight: 600;
+        }
+
+        .main-content {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .content-wrapper {
+            flex: 1;
+            padding: 48px 40px;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .hero {
+            text-align: center;
+            margin-bottom: 56px;
+            padding: 0;
+        }
+
+        .hero h1 {
+            font-size: 2.8rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: var(--color-text-primary);
+            letter-spacing: -0.02em;
+        }
+
+        .hero p {
+            font-size: 1.15rem;
+            color: var(--color-text-secondary);
+            margin-bottom: 8px;
+            font-weight: 400;
+        }
+
+        .hero .subtitle {
+            font-size: 0.9rem;
+            color: var(--color-text-secondary);
+            opacity: 0.8;
+        }
+
+        .section {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { 
+                opacity: 0; 
+                transform: translateY(8px); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0); 
+            }
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        .feature-card {
+            background: var(--color-bg-elevated);
+            border: 1px solid var(--color-border);
+            border-radius: 12px;
+            padding: 28px;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .feature-card:hover {
+            border-color: var(--color-accent);
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        .feature-icon {
+            font-size: 2.4rem;
+            margin-bottom: 16px;
+            display: inline-block;
+            width: 48px;
+            height: 48px;
+            line-height: 48px;
+        }
+
+        .feature-card h3 {
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: var(--color-text-primary);
+            margin-bottom: 10px;
+        }
+
+        .feature-card p {
+            font-size: 0.9rem;
+            color: var(--color-text-secondary);
+            margin-bottom: 20px;
+            flex-grow: 1;
+            line-height: 1.6;
+        }
+
+        .feature-card-button {
+            align-self: flex-start;
+        }
+
+        .card {
+            background: var(--color-bg-elevated);
+            border-radius: 12px;
+            padding: 32px;
+            margin-bottom: 24px;
+            border: 1px solid var(--color-border);
+            box-shadow: var(--shadow);
+        }
+
+        .card h2 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--color-text-primary);
+            margin-bottom: 24px;
+            padding-bottom: 0;
+            border-bottom: none;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--color-text-primary);
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px 16px;
+            background: var(--color-bg-surface);
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            color: var(--color-text-primary);
+            font-size: 1rem;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--color-accent);
+            background: var(--color-bg-elevated);
+            box-shadow: 0 0 0 3px rgba(164, 55, 58, 0.1);
+        }
+
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        button, .btn {
+            background: var(--color-accent);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 600;
+            transition: all 0.2s;
+            display: inline-block;
+            text-decoration: none;
+            text-align: center;
+            box-shadow: var(--shadow);
+        }
+
+        button:hover, .btn:hover {
+            background: var(--color-accent-hover);
+            box-shadow: var(--shadow-md);
+            transform: translateY(-1px);
+        }
+
+        button:active, .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: var(--color-bg-surface);
+            color: var(--color-text-primary);
+            border: 1px solid var(--color-border);
+            box-shadow: none;
+        }
+
+        .btn-secondary:hover {
+            background: var(--color-border);
+            color: var(--color-accent);
+            box-shadow: var(--shadow);
+        }
+
+        .notification-container {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            z-index: 1000;
+            max-width: 380px;
+            pointer-events: none;
+        }
+
+        .notification {
+            background: var(--color-bg-elevated);
+            border-left: 4px solid var(--color-accent);
+            border-radius: 8px;
+            padding: 16px 20px;
+            margin-bottom: 12px;
+            box-shadow: var(--shadow-lg);
+            animation: slideIn 0.3s ease;
+            pointer-events: auto;
+        }
+
+        .notification.success {
+            border-left-color: var(--color-success);
+        }
+
+        .notification.error {
+            border-left-color: var(--color-danger);
+        }
+
+        .notification.warning {
+            border-left-color: var(--color-warning);
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .notification-title {
+            font-weight: 600;
+            color: var(--color-text-primary);
+            font-size: 0.95rem;
+            margin-bottom: 4px;
+        }
+
+        .notification-body {
+            color: var(--color-text-secondary);
+            font-size: 0.85rem;
+        }
+
+        .quiz-type-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .quiz-type-btn {
+            padding: 12px 16px;
+            border: 2px solid var(--color-border);
+            background: var(--color-bg-surface);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .quiz-type-btn:hover {
+            border-color: var(--color-accent);
+            background: var(--color-bg-elevated);
+        }
+
+        .quiz-type-btn.active {
+            background: var(--color-accent);
+            color: white;
+            border-color: var(--color-accent);
+        }
+
+        .quiz-question {
+            background: var(--color-bg-surface);
+            padding: 24px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border: 1px solid var(--color-border);
+            box-shadow: var(--shadow);
+        }
+
+        .quiz-options {
+            margin-top: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .quiz-option {
+            background: var(--color-bg-elevated);
+            padding: 12px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            border: 2px solid var(--color-border);
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .quiz-option:hover {
+            border-color: var(--color-accent);
+            background: var(--color-bg-surface);
+        }
+
+        .quiz-option.selected {
+            border-color: var(--color-accent);
+            background: var(--color-accent-light);
+        }
+
+        .quiz-option.correct {
+            border-color: var(--color-success);
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .quiz-option.incorrect {
+            border-color: var(--color-danger);
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        .flashcard-container {
+            perspective: 1000px;
+            margin: 24px 0;
+        }
+
+        .flashcard {
+            background: var(--color-bg-elevated);
+            border-radius: 12px;
+            padding: 48px 40px;
+            min-height: 280px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            cursor: pointer;
+            border: 1px solid var(--color-border);
+            box-shadow: var(--shadow-md);
+            transition: transform 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            transform-style: preserve-3d;
+            position: relative;
+        }
+
+        .flashcard:hover {
+            box-shadow: var(--shadow-lg);
+            border-color: var(--color-accent);
+        }
+
+        .flashcard.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .flashcard-face {
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+        }
+
+        .flashcard-back {
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            transform: rotateY(180deg);
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 48px 40px;
+            text-align: center;
+        }
+
+        .flashcard h2 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--color-accent);
+        }
+
+        .flashcard-back p {
+            font-size: 1rem;
+            color: var(--color-text-primary);
+            line-height: 1.6;
+        }
+
+        .timeline {
+            position: relative;
+            padding-left: 32px;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--color-accent);
+        }
+
+        .timeline-item {
+            position: relative;
+            padding-bottom: 28px;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -37px;
+            top: 4px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--color-accent);
+            border: 3px solid var(--color-bg-base);
+        }
+
+        .timeline-year {
+            color: var(--color-accent);
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 6px;
+        }
+
+        .news-item {
+            background: var(--color-bg-surface);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 16px;
+            border: 1px solid var(--color-border);
+            border-left: 4px solid var(--color-accent);
+            box-shadow: var(--shadow);
+            transition: all 0.3s;
+        }
+
+        .news-item:hover {
+            border-color: var(--color-accent);
+            box-shadow: var(--shadow-md);
+        }
+
+        .news-date {
+            color: var(--color-text-secondary);
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .news-item h4 {
+            font-size: 1.05rem;
+            color: var(--color-text-primary);
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+        }
+
+        .progress-bar {
+            background: var(--color-bg-surface);
+            border-radius: 8px;
+            height: 8px;
+            overflow: hidden;
+            margin: 12px 0;
+        }
+
+        .progress-fill {
+            background: var(--color-accent);
+            height: 100%;
+            transition: width 0.3s;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-right: 8px;
+            margin-bottom: 8px;
+        }
+
+        .badge-primary {
+            background: var(--color-accent-light);
+            color: var(--color-accent);
+        }
+
+        .output-box {
+            background: var(--color-bg-surface);
+            padding: 24px;
+            border-radius: 10px;
+            margin-top: 20px;
+            white-space: pre-wrap;
+            max-height: 500px;
+            overflow-y: auto;
+            border: 1px solid var(--color-border);
+            box-shadow: var(--shadow);
+            line-height: 1.8;
+            font-size: 0.9rem;
+            color: var(--color-text-primary);
+        }
+
+        @media (max-width: 768px) {
+            .sidebar-toggle {
+                display: flex;
+            }
+
+            .app-wrapper {
+                flex-direction: column;
+            }
+
+            .content-wrapper {
+                padding: 60px 20px 32px 20px;
+            }
+
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .hero p {
+                font-size: 1rem;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .content-wrapper {
+                padding: 24px 16px;
+            }
+
+            .card {
+                padding: 20px;
+            }
+
+            .hero h1 {
+                font-size: 1.6rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="notificationContainer" class="notification-container"></div>
+    
+    <button id="sidebarToggle" class="sidebar-toggle" aria-expanded="false" onclick="toggleSidebar()" aria-label="Toggle sidebar"><span class="chev"></span></button>
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+    
+    <div class="app-wrapper">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">🇵🇭 PolSci</div>
+                <div class="sidebar-tagline">Study Assistant</div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <button class="nav-btn active" onclick="showSection('home')">
+                    <span style="font-size: 1.2rem;">🏠</span>
+                    <span>Home</span>
+                </button>
+                <button class="nav-btn" onclick="showSection('studyplan')">
+                    <span style="font-size: 1.2rem;">📅</span>
+                    <span>Study Plan</span>
+                </button>
+                <button class="nav-btn" onclick="showSection('summarizer')">
+                    <span style="font-size: 1.2rem;">📝</span>
+                    <span>Summarizer</span>
+                </button>
+                <button class="nav-btn" onclick="showSection('quiz')">
+                    <span style="font-size: 1.2rem;">📚</span>
+                    <span>Quiz Prep</span>
+                </button>
+                <button class="nav-btn" onclick="showSection('flashcards')">
+                    <span style="font-size: 1.2rem;">🗂️</span>
+                    <span>Flashcards</span>
+                </button>
+                <button class="nav-btn" onclick="showSection('timeline')">
+                    <span style="font-size: 1.2rem;">⏱️</span>
+                    <span>Timeline</span>
+                </button>
+                <button class="nav-btn" onclick="showSection('news')">
+                    <span style="font-size: 1.2rem;">📰</span>
+                    <span>Current Events</span>
+                </button>
+                <button class="nav-btn" onclick="showSection('career')">
+                    <span style="font-size: 1.2rem;">💼</span>
+                    <span>Career Helper</span>
+                </button>
+                <hr style="border: none; border-top: 1px solid var(--color-border); margin: 16px 12px;">
+                <button class="nav-btn" onclick="toggleAdminPanel()" style="color: var(--color-accent);">
+                    <span style="font-size: 1.2rem;">⚙️</span>
+                    <span>Admin Panel</span>
+                </button>
+            </nav>
+        </aside>
+
+        <!-- Admin Panel Modal -->
+        <div id="adminPanel" class="admin-panel">
+            <div class="admin-content">
+                <button class="admin-close" onclick="toggleAdminPanel()">×</button>
+                <h2 style="margin-top: 0; margin-bottom: 8px;">📰 Manage Articles</h2>
+                <p style="color: var(--color-text-secondary); font-size: 0.9rem; margin-bottom: 20px;">Add, edit, or schedule news articles for automatic publishing.</p>
+
+                <div class="admin-form">
+                    <div class="form-group">
+                        <label>Article Title:</label>
+                        <input type="text" id="adminTitle" placeholder="e.g., BARMM Elections Approved">
+                    </div>
+                    <div class="form-group">
+                        <label>Article Content:</label>
+                        <textarea id="adminContent" placeholder="Brief article summary..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Publish Date:</label>
+                        <input type="date" id="adminDate">
+                    </div>
+                    <div class="form-group">
+                        <label>Relevance/Tags:</label>
+                        <input type="text" id="adminRelevance" placeholder="e.g., Important for understanding BARMM">
+                    </div>
+                    <div class="form-group">
+                        <label>Article Link (optional):</label>
+                        <input type="url" id="adminLink" placeholder="https://example.com/full-article">
+                    </div>
+                    <button onclick="addArticle()" style="width: 100%; margin-bottom: 12px;">+ Add Article</button>
+                    <button onclick="clearAdminForm()" class="btn-secondary" style="width: 100%;">Clear Form</button>
+                </div>
+
+                <div class="articles-list">
+                    <h3 style="margin-top: 0; margin-bottom: 16px;">📋 Scheduled Articles</h3>
+                    <div id="adminArticlesList"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="content-wrapper">
+                <div class="container">
+                    <!-- Home Section -->
+                    <div id="home" class="section active">
+                        <div class="hero">
+                            <h1>Philippine Political Science Study Companion</h1>
+                            <p>Master PolSci with AI-powered tools designed for Filipino students</p>
+                            <div class="subtitle">Study smarter. Achieve better. Pass with confidence.</div>
+                        </div>
+
+                        <div class="features-grid">
+                            <div class="feature-card">
+                                <div class="feature-icon">📅</div>
+                                <h3>Study Plan</h3>
+                                <p>Get a personalized study schedule tailored to your year level, available time, and goals. Navigate your PolSci journey with a clear roadmap.</p>
+                                <div class="feature-card-button">
+                                    <button class="btn" onclick="showSection('studyplan')" style="padding: 10px 20px; font-size: 0.9rem;">Create Plan</button>
+                                </div>
+                            </div>
+
+                            <div class="feature-card">
+                                <div class="feature-icon">📝</div>
+                                <h3>Summarizer</h3>
+                                <p>Transform lengthy lectures and articles into concise, organized summaries. Perfect for cramming and quick review before exams.</p>
+                                <div class="feature-card-button">
+                                    <button class="btn" onclick="showSection('summarizer')" style="padding: 10px 20px; font-size: 0.9rem;">Summarize</button>
+                                </div>
+                            </div>
+
+                            <div class="feature-card">
+                                <div class="feature-icon">📚</div>
+                                <h3>Quiz Prep</h3>
+                                <p>Practice with unlimited quiz questions covering all major PolSci topics. Get instant feedback and track your progress on exam topics.</p>
+                                <div class="feature-card-button">
+                                    <button class="btn" onclick="showSection('quiz')" style="padding: 10px 20px; font-size: 0.9rem;">Start Quiz</button>
+                                </div>
+                            </div>
+
+                            <div class="feature-card">
+                                <div class="feature-icon">🗂️</div>
+                                <h3>Flashcards</h3>
+                                <p>Interactive, flip-based learning for definitions and concepts. Ideal for memorizing constitutional terms and political concepts.</p>
+                                <div class="feature-card-button">
+                                    <button class="btn" onclick="showSection('flashcards')" style="padding: 10px 20px; font-size: 0.9rem;">Learn</button>
+                                </div>
+                            </div>
+
+                            <div class="feature-card">
+                                <div class="feature-icon">⏱️</div>
+                                <h3>Timeline</h3>
+                                <p>Explore Philippine political history through interactive timelines. Understand key events, eras, and the evolution of governance.</p>
+                                <div class="feature-card-button">
+                                    <button class="btn" onclick="showSection('timeline')" style="padding: 10px 20px; font-size: 0.9rem;">Explore</button>
+                                </div>
+                            </div>
+
+                            <div class="feature-card">
+                                <div class="feature-icon">📰</div>
+                                <h3>Current Events</h3>
+                                <p>Stay updated with latest political developments and news. Connect classroom concepts to real-world Philippine politics.</p>
+                                <div class="feature-card-button">
+                                    <button class="btn" onclick="showSection('news')" style="padding: 10px 20px; font-size: 0.9rem;">Read</button>
+                                </div>
+                            </div>
+
+                            <div class="feature-card">
+                                <div class="feature-icon">💼</div>
+                                <h3>Career Helper</h3>
+                                <p>Discover career paths, CSE exam resources, and opportunities in public service. Plan your professional future in PolSci.</p>
+                                <div class="feature-card-button">
+                                    <button class="btn" onclick="showSection('career')" style="padding: 10px 20px; font-size: 0.9rem;">Explore Careers</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card" style="margin-top: 40px;">
+                            <h2>📚 Key Subjects Covered</h2>
+                            <div style="margin-top: 16px;">
+                                <span class="badge badge-primary">1987 Constitution</span>
+                                <span class="badge badge-primary">Philippine Government</span>
+                                <span class="badge badge-primary">Political Concepts</span>
+                                <span class="badge badge-primary">International Relations</span>
+                                <span class="badge badge-primary">Local Governance</span>
+                                <span class="badge badge-primary">Public Policy</span>
+                                <span class="badge badge-primary">Political Theory</span>
+                                <span class="badge badge-primary">BARMM & Autonomy</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Study Plan Section -->
+                    <div id="studyplan" class="section">
+                        <div class="card">
+                            <h2>📅 Personalized Study Plan</h2>
+                            <p style="color: var(--color-text-secondary); margin-bottom: 24px;">Create a customized study schedule based on your year level, available time, and goals.</p>
+                            <div class="form-group">
+                                <label>Year Level:</label>
+                                <select id="yearLevel">
+                                    <option value="1">1st Year</option>
+                                    <option value="2">2nd Year</option>
+                                    <option value="3">3rd Year</option>
+                                    <option value="4">4th Year</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Focus Subject:</label>
+                                <select id="focusSubject">
+                                    <option value="constitution">1987 Constitution</option>
+                                    <option value="phgovt">Philippine Government</option>
+                                    <option value="phpolitics">Philippine Politics</option>
+                                    <option value="intlrelations">International Relations</option>
+                                    <option value="localgov">Local Governance</option>
+                                    <option value="publicpolicy">Public Policy</option>
+                                    <option value="theory">Political Theory</option>
+                                </select>
+                            </div>
+                            <div class="grid-2">
+                                <div class="form-group">
+                                    <label>Study Time Available (hours per day):</label>
+                                    <input type="number" id="studyTime" min="1" max="12" value="2">
+                                </div>
+                                <div class="form-group">
+                                    <label>Study Duration:</label>
+                                    <select id="studyDuration">
+                                        <option value="weekly">1 Week</option>
+                                        <option value="biweekly">2 Weeks</option>
+                                        <option value="monthly">1 Month</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Your Goal:</label>
+                                <select id="studyGoal">
+                                    <option value="exam">Exam Preparation</option>
+                                    <option value="recitation">Recitation Readiness</option>
+                                    <option value="deanslist">Dean's Lister Target</option>
+                                    <option value="cse">CSE Preparation</option>
+                                </select>
+                            </div>
+                            <button onclick="generateStudyPlan()">Generate Study Plan</button>
+                            <div id="studyPlanOutput" class="output-box" style="display: none;"></div>
+                        </div>
+                    </div>
+
+                    <!-- Summarizer Section -->
+                    <div id="summarizer" class="section">
+                        <div class="card">
+                            <h2>📝 Smart Summarizer</h2>
+                            <p style="color: var(--color-text-secondary); margin-bottom: 24px;">Transform lengthy lectures, articles, and notes into concise, organized summaries.</p>
+                            <div class="form-group">
+                                <label>Paste your text (lecture notes, articles, readings):</label>
+                                <textarea id="summarizerInput" placeholder="Paste lecture notes, Constitution articles, or news articles here..."></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>Summary Format:</label>
+                                <select id="summaryType">
+                                    <option value="concise">Key Points (Concise)</option>
+                                    <option value="detailed">Detailed Analysis</option>
+                                    <option value="bullets">Bullet Points</option>
+                                    <option value="mindmap">Mind Map Format</option>
+                                </select>
+                            </div>
+                            <button onclick="generateSummary()">Create Summary</button>
+                            <div id="summaryOutput" class="output-box" style="display: none;"></div>
+                        </div>
+                    </div>
+
+                    <!-- Quiz Section -->
+                    <div id="quiz" class="section">
+                        <div class="card">
+                            <h2>📚 Quiz & Exam Prep</h2>
+                            <p style="color: var(--color-text-secondary); margin-bottom: 24px;">Practice with multiple-choice, identification, and enumeration questions covering key PolSci topics.</p>
+                            <div class="form-group">
+                                <label>Quiz Format:</label>
+                                <div class="quiz-type-selector">
+                                    <div class="quiz-type-btn active" onclick="selectQuizType('multiple')">Multiple Choice</div>
+                                    <div class="quiz-type-btn" onclick="selectQuizType('identification')">Identification</div>
+                                    <div class="quiz-type-btn" onclick="selectQuizType('enumeration')">Enumeration</div>
+                                </div>
+                            </div>
+                            <div class="grid-2">
+                                <div class="form-group">
+                                    <label>Select Topic:</label>
+                                    <select id="quizTopic">
+                                        <option value="constitution">1987 Constitution</option>
+                                        <option value="edsa">EDSA People Power</option>
+                                        <option value="federalism">Federalism Debates</option>
+                                        <option value="barangay">Barangay Governance</option>
+                                        <option value="asean">ASEAN Politics</option>
+                                        <option value="barmm">Bangsamoro (BARMM)</option>
+                                        <option value="localgovt">Local Government Code</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Number of Questions:</label>
+                                    <input type="number" id="quizCount" min="5" max="20" value="10">
+                                </div>
+                            </div>
+                            <button onclick="generateQuiz()">Start Quiz</button>
+                            <div id="quizContainer" class="quiz-container"></div>
+                            <button id="submitQuiz" style="display: none; margin-top: 24px;" onclick="checkAnswers()">Submit Answers</button>
+                            <div id="quizResults" style="display: none; margin-top: 24px;"></div>
+                        </div>
+                    </div>
+
+                    <!-- Flashcards Section -->
+                    <div id="flashcards" class="section">
+                        <div class="card">
+                            <h2>🗂️ Interactive Flashcards</h2>
+                            <p style="color: var(--color-text-secondary); margin-bottom: 24px;">Learn through flip-based cards with definitions and concepts.</p>
+                            <div class="form-group">
+                                <label>Topic:</label>
+                                <select id="flashcardTopic" onchange="loadFlashcards()">
+                                    <option value="constitution">Constitutional Terms</option>
+                                    <option value="political">Political Concepts</option>
+                                    <option value="historical">Historical Events</option>
+                                    <option value="institutions">Government Institutions</option>
+                                </select>
+                            </div>
+                            <div id="flashcardDisplay"></div>
+                            <div style="text-align: center; margin-top: 24px; display: flex; justify-content: center; gap: 12px;">
+                                <button class="btn-secondary" onclick="prevFlashcard()">← Previous</button>
+                                <button class="btn-secondary" onclick="nextFlashcard()">Next →</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Timeline Section -->
+                    <div id="timeline" class="section">
+                        <div class="card">
+                            <h2>⏱️ Philippine Political History</h2>
+                            <p style="color: var(--color-text-secondary); margin-bottom: 24px;">Explore key events and periods in Philippine political history.</p>
+                            <div class="form-group">
+                                <label>Select Era:</label>
+                                <select id="timelineEra" onchange="loadTimeline()">
+                                    <option value="marcos">Marcos Era to EDSA (1972-1986)</option>
+                                    <option value="postEdsa">Post-EDSA to Present (1986-2026)</option>
+                                    <option value="presidents">Philippine Presidents Timeline</option>
+                                    <option value="constitutions">Constitutional History</option>
+                                </select>
+                            </div>
+                            <div id="timelineDisplay" class="timeline"></div>
+                        </div>
+                    </div>
+
+                    <!-- News Section -->
+                    <div id="news" class="section">
+                        <div class="card">
+                            <h2>📰 Current Events Tracker</h2>
+                            <p style="color: var(--color-text-secondary); margin-bottom: 24px;">Stay informed with the latest Philippine political developments (as of January 2026).</p>
+                            <div id="newsDisplay"></div>
+                        </div>
+                    </div>
+
+                    <!-- Career Section -->
+                    <div id="career" class="section">
+                        <div class="card">
+                            <h2>💼 Career & Professional Development</h2>
+                            <p style="color: var(--color-text-secondary); margin-bottom: 24px;">Explore career paths, CSE preparation, and opportunities in public service and beyond.</p>
+                            
+                            <div style="margin-bottom: 32px;">
+                                <h3>Civil Service Exam (CSE) Preparation</h3>
+                                <p style="color: var(--color-text-secondary); margin-bottom: 16px;">CSE 2026 will have multiple exam dates throughout the year. Here's what you need to know:</p>
+                                <div class="grid-2">
+                                    <div>
+                                        <strong style="color: var(--color-accent);">Key Subjects:</strong>
+                                        <ul style="padding-left: 20px; margin-top: 8px;">
+                                            <li>Philippine Constitution</li>
+                                            <li>Code of Conduct & Ethical Standards</li>
+                                            <li>RA 6713 (Code of Conduct)</li>
+                                            <li>Peace and Human Rights Issues</li>
+                                        </ul>
+                                    </div>
+                                    <div>
+                                        <button onclick="showSection('quiz')" style="width: 100%; margin-bottom: 12px;">Practice CSE Questions</button>
+                                        <p style="color: var(--color-text-secondary); font-size: 0.9rem;">Use the Quiz Prep tool to practice CSE-style questions and boost your exam readiness.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div style="margin-bottom: 32px;">
+                                <h3>Thesis & Research Ideas</h3>
+                                <p style="color: var(--color-text-secondary); margin-bottom: 16px;">Hot topics for your undergraduate or graduate research projects:</p>
+                                <ul style="padding-left: 20px;">
+                                    <li>BARMM First Parliamentary Elections (March 2026)</li>
+                                    <li>Political Dynasties in Philippine Politics</li>
+                                    <li>Anti-Corruption Mechanisms and Effectiveness</li>
+                                    <li>Digital Governance in Local Government Units</li>
+                                    <li>Youth Political Participation and Engagement</li>
+                                    <li>ASEAN Integration and Its Impact on PH Policy</li>
+                                </ul>
+                            </div>
+
+                            <div class="grid-2">
+                                <div>
+                                    <h3>OJT & Internship Opportunities</h3>
+                                    <ul style="padding-left: 20px; margin-top: 12px;">
+                                        <li>Commission on Elections (COMELEC)</li>
+                                        <li>Department of Interior and Local Government (DILG)</li>
+                                        <li>Senate/House of Representatives</li>
+                                        <li>Civil Service Commission (CSC)</li>
+                                        <li>NGOs (Transparency International, PPCRV)</li>
+                                    </ul>
+                                </div>
+                                <div>
+                                    <h3>Career Paths</h3>
+                                    <ul style="padding-left: 20px; margin-top: 12px;">
+                                        <li>Government Service (Career Executive Service)</li>
+                                        <li>Diplomatic Corps (Department of Foreign Affairs)</li>
+                                        <li>Policy Analyst & Researcher</li>
+                                        <li>Political Consultant</li>
+                                        <li>Law School → Lawyer/Judge</li>
+                                        <li>Academe & University Professor</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentFlashcardIndex = 0;
+        let flashcardsData = [];
+        let quizData = [];
+        let userAnswers = {};
+        let currentQuizType = 'multiple';
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+        }
+
+        function closeSidebarOnNav() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            if (window.innerWidth <= 768) {
+                sidebar.classList.remove('active');
+                overlay.classList.remove('active');
+            }
+        }
+
+        function showNotification(title, message, type = 'info') {
+            const container = document.getElementById('notificationContainer');
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            
+            notification.innerHTML = `
+                <div class="notification-title">${title}</div>
+                <div class="notification-body">${message}</div>
+            `;
+            
+            container.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 5000);
+        }
+
+        // Admin Panel Functions
+        function toggleAdminPanel() {
+            const adminPanel = document.getElementById('adminPanel');
+            adminPanel.classList.toggle('active');
+            if (adminPanel.classList.contains('active')) {
+                loadAdminArticles();
+            }
+        }
+
+        function getStoredArticles() {
+            const stored = localStorage.getItem('polsci_articles');
+            return stored ? JSON.parse(stored) : [];
+        }
+
+        function saveArticles(articles) {
+            localStorage.setItem('polsci_articles', JSON.stringify(articles));
+        }
+
+        function addArticle() {
+            const title = document.getElementById('adminTitle').value.trim();
+            const content = document.getElementById('adminContent').value.trim();
+            const date = document.getElementById('adminDate').value;
+            const relevance = document.getElementById('adminRelevance').value.trim();
+            const link = document.getElementById('adminLink') ? document.getElementById('adminLink').value.trim() : '';
+
+            if (!title || !content || !date) {
+                showNotification('Missing Info', 'Please fill in title, content, and date.', 'warning');
+                return;
+            }
+
+            const articles = getStoredArticles();
+            const newArticle = {
+                id: Date.now(),
+                title: title,
+                content: content,
+                link: link,
+                date: date,
+                relevance: relevance,
+                createdAt: new Date().toISOString()
+            };
+
+            articles.push(newArticle);
+            saveArticles(articles);
+            clearAdminForm();
+            loadAdminArticles();
+            loadNews();
+            showNotification('Success!', `Article "${title}" scheduled for ${date}`, 'success');
+        }
+
+        function deleteArticle(id) {
+            if (confirm('Delete this article?')) {
+                let articles = getStoredArticles();
+                articles = articles.filter(a => a.id !== id);
+                saveArticles(articles);
+                loadAdminArticles();
+                loadNews();
+                showNotification('Deleted', 'Article removed.', 'success');
+            }
+        }
+
+        function clearAdminForm() {
+            document.getElementById('adminTitle').value = '';
+            document.getElementById('adminContent').value = '';
+            document.getElementById('adminDate').value = '';
+            document.getElementById('adminRelevance').value = '';
+            if (document.getElementById('adminLink')) document.getElementById('adminLink').value = '';
+        }
+
+        function loadAdminArticles() {
+            const articles = getStoredArticles();
+            const list = document.getElementById('adminArticlesList');
+            
+            if (articles.length === 0) {
+                list.innerHTML = '<p style="color: var(--color-text-secondary); text-align: center;">No articles scheduled yet. Add one above!</p>';
+                return;
+            }
+
+            list.innerHTML = articles.map(article => {
+                const linkBtn = article.link ? `<a href="${article.link}" target="_blank" rel="noopener" class="btn" style="padding:6px 10px; margin-right:8px; font-size:0.8rem;">Open</a>` : '';
+                return `
+                <div class="article-item">
+                    <div class="article-info">
+                        <strong>${article.title}</strong>
+                        <small>📅 ${article.date}</small><br>
+                        <small style="display: block; margin-top: 4px; color: var(--color-text-primary);">${article.content.substring(0, 60)}...</small>
+                    </div>
+                    <div style="display:flex; align-items:flex-start; gap:8px;">
+                        ${linkBtn}
+                        <button class="btn-delete" onclick="deleteArticle(${article.id})">Delete</button>
+                    </div>
+                </div>
+            `}).join('');
+        }
+
+        function selectQuizType(type) {
+            currentQuizType = type;
+            document.querySelectorAll('.quiz-type-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            showNotification('Quiz Type Changed', `Switched to ${type === 'multiple' ? 'Multiple Choice' : type === 'identification' ? 'Identification' : 'Enumeration'} mode`, 'success');
+        }
+
+        function showSection(sectionId) {
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            const section = document.getElementById(sectionId);
+            if (section) {
+                section.classList.add('active');
+            }
+            
+            const buttons = document.querySelectorAll('.nav-btn');
+            buttons.forEach(btn => {
+                if (btn.onclick && btn.onclick.toString().includes(`'${sectionId}'`)) {
+                    btn.classList.add('active');
+                }
+            });
+
+            closeSidebarOnNav();
+        }
+
+        function generateStudyPlan() {
+            showNotification('Generating...', 'Creating your personalized study plan', 'info');
+            
+            const year = document.getElementById('yearLevel').value;
+            const subject = document.getElementById('focusSubject').options[document.getElementById('focusSubject').selectedIndex].text;
+            const hours = document.getElementById('studyTime').value;
+            const duration = document.getElementById('studyDuration').options[document.getElementById('studyDuration').selectedIndex].text;
+            const goal = document.getElementById('studyGoal').options[document.getElementById('studyGoal').selectedIndex].text;
+
+            const plan = `📅 PERSONALIZED STUDY PLAN
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+👤 Profile:
+   Year Level: ${year}th Year
+   Focus Subject: ${subject}
+   Daily Study Time: ${hours} hours
+   Duration: ${duration}
+   Goal: ${goal}
+
+📚 WEEKLY BREAKDOWN:
+
+WEEK 1: Foundation Building
+━━━━━━━━━━━━━━━━━━━━━━━━
+Monday-Tuesday (${hours}hrs each):
+   • Review core concepts and definitions
+   • Read primary sources (Constitution, key laws)
+   • Create comprehensive notes
+
+Wednesday-Thursday (${hours}hrs each):
+   • Practice recall with flashcards
+   • Summarize key articles/sections
+   • Identify weak areas
+
+Friday-Saturday (${hours}hrs each):
+   • Take practice quizzes
+   • Review incorrect answers
+   • Deep dive into complex topics
+
+Sunday:
+   • Rest or light review (1 hour max)
+   • Organize notes for next week
+
+WEEK 2: Application & Mastery
+━━━━━━━━━━━━━━━━━━━━━━━━
+Monday-Tuesday:
+   • Connect concepts to current events
+   • Analyze real-world applications
+   • Case studies and examples
+
+Wednesday-Thursday:
+   • Group study/recitation practice
+   • Teach concepts to others
+   • Mock debates/discussions
+
+Friday-Saturday:
+   • Full-length practice exams
+   • Time-bound quiz simulations
+   • Final review of all materials
+
+Sunday:
+   • Rest and mental preparation
+   • Light confidence-building review
+
+💡 STUDY TIPS:
+   ✓ Use the Pomodoro Technique (25 min study, 5 min break)
+   ✓ Create mnemonics for memorization
+   ✓ Connect to current events for deeper understanding
+   ✓ Practice recitation with friends or family
+   ✓ Review before sleeping for better retention
+
+Padayon! You've got this! 🚀`;
+
+            document.getElementById('studyPlanOutput').textContent = plan;
+            document.getElementById('studyPlanOutput').style.display = 'block';
+            showNotification('Study Plan Ready!', 'Your personalized study plan has been generated', 'success');
+        }
+
+        function generateSummary() {
+            const input = document.getElementById('summarizerInput').value;
+            const type = document.getElementById('summaryType').value;
+            
+            if (!input.trim()) {
+                showNotification('Input Required', 'Please paste some text to summarize!', 'warning');
+                return;
+            }
+            
+            showNotification('Summarizing...', 'Processing your text', 'info');
+
+            let summary = `📝 SUMMARY (${type.toUpperCase()})\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
+
+            if (type === 'concise') {
+                summary += `🔑 KEY POINTS:\n\n• Main Idea: [Extracted from first paragraph]\n• Supporting Arguments: [2-3 key arguments]\n• Conclusion: [Final takeaway]\n• Philippine Context: [How it applies to PH]\n\n📌 MEMORIZE THIS:\n[Most important point in one sentence]`;
+            } else if (type === 'bullets') {
+                const sentences = input.split('.').filter(s => s.trim().length > 0);
+                summary += sentences.slice(0, 8).map((s, i) => `• ${s.trim()}`).join('\n');
+            } else if (type === 'mindmap') {
+                summary += `CENTRAL CONCEPT\n    ├── Branch 1: [Main Topic]\n    │   ├── Sub-point A\n    │   └── Sub-point B\n    ├── Branch 2: [Related Topic]\n    │   ├── Sub-point C\n    │   └── Sub-point D\n    └── Branch 3: [Application]\n        ├── PH Example 1\n        └── PH Example 2`;
+            } else {
+                summary += `DETAILED ANALYSIS:\n\n1. OVERVIEW\n   ${input.substring(0, 200)}...\n\n2. KEY THEMES\n   • Constitutional basis\n   • Political implications\n   • Social impact\n\n3. CRITICAL POINTS FOR EXAM\n   • Definition and scope\n   • Historical context\n   • Current relevance\n\n4. PHILIPPINE APPLICATION\n   • How this applies in PH context\n   • Recent examples/cases\n   • Policy implications`;
+            }
+
+            summary += `\n\n💡 STUDY TIP: Relate this to recent news or historical events for better recall!`;
+
+            document.getElementById('summaryOutput').textContent = summary;
+            document.getElementById('summaryOutput').style.display = 'block';
+            showNotification('Summary Ready!', 'Your text has been summarized', 'success');
+        }
+
+        function generateQuiz() {
+            const topic = document.getElementById('quizTopic').value;
+            const count = parseInt(document.getElementById('quizCount').value);
+            
+            showNotification('Quiz Loading...', `Generating ${currentQuizType} quiz`, 'info');
+
+            const multipleChoiceBank = {
+                constitution: [
+                    { q: 'What year was the current Philippine Constitution ratified?', options: ['1935', '1973', '1987', '2001'], correct: 2 },
+                    { q: 'How many articles does the 1987 Constitution have?', options: ['16', '18', '20', '22'], correct: 1 },
+                    { q: 'Which article covers the Bill of Rights?', options: ['Article II', 'Article III', 'Article IV', 'Article V'], correct: 1 },
+                    { q: 'The principle of separation of church and state is found in which article?', options: ['Article I', 'Article II', 'Article III', 'Article VI'], correct: 1 },
+                    { q: 'What is the minimum age requirement for a Senator?', options: ['30', '35', '40', '45'], correct: 1 }
+                ],
+                edsa: [
+                    { q: 'When did the EDSA People Power Revolution occur?', options: ['Feb 22-25, 1983', 'Feb 22-25, 1986', 'Feb 22-25, 1989', 'Feb 22-25, 1990'], correct: 1 },
+                    { q: 'Who was the opposition leader assassinated in 1983?', options: ['Jose Rizal', 'Ninoy Aquino', 'Elpidio Quirino', 'Ramon Magsaysay'], correct: 1 },
+                    { q: 'Which Cardinal called for people to go to EDSA?', options: ['Cardinal Tagle', 'Cardinal Vidal', 'Cardinal Sin', 'Cardinal Rosales'], correct: 2 },
+                    { q: 'Who became president after Marcos?', options: ['Fidel Ramos', 'Corazon Aquino', 'Joseph Estrada', 'Gloria Arroyo'], correct: 1 },
+                    { q: 'How long did Marcos rule the Philippines?', options: ['10 years', '15 years', '20 years', '25 years'], correct: 2 }
+                ],
+                barmm: [
+                    { q: 'What does BARMM stand for?', options: ['Bangsamoro Autonomous Region in Muslim Mindanao', 'Bangsamoro Administrative Region', 'Basic Autonomous Region', 'Bangsamoro Alliance'], correct: 0 },
+                    { q: 'When was the Bangsamoro Organic Law signed?', options: ['2016', '2017', '2018', '2019'], correct: 2 },
+                    { q: 'When are the first Bangsamoro Parliamentary Elections scheduled?', options: ['May 12, 2025', 'October 13, 2025', 'March 30, 2026', 'May 11, 2026'], correct: 2 },
+                    { q: 'How many Members of Parliament will be elected in BARMM?', options: ['60', '70', '80', '90'], correct: 2 },
+                    { q: 'The BARMM replaces which previous autonomous region?', options: ['ARMM', 'MILF', 'MNLF', 'BIAF'], correct: 0 }
+                ],
+                barangay: [
+                    { q: 'What is the smallest political unit in the Philippines?', options: ['Municipality', 'Sitio', 'Barangay', 'Purok'], correct: 2 },
+                    { q: 'Who is the head of a barangay?', options: ['Barangay Captain', 'Punong Barangay', 'Both A and B', 'Mayor'], correct: 2 },
+                    { q: 'How many Sangguniang Barangay members are there typically?', options: ['5', '7', '9', '11'], correct: 1 },
+                    { q: 'What is the Katarungang Pambarangay?', options: ['Barangay budget', 'Barangay justice system', 'Barangay health center', 'Barangay election'], correct: 1 },
+                    { q: 'How long is the term of a Barangay Captain?', options: ['2 years', '3 years', '4 years', '6 years'], correct: 1 }
+                ],
+                asean: [
+                    { q: 'How many member states does ASEAN have?', options: ['8', '10', '12', '15'], correct: 1 },
+                    { q: 'When did the Philippines join ASEAN?', options: ['1967', '1972', '1984', '1995'], correct: 0 },
+                    { q: 'What is the principle of ASEAN regarding domestic affairs?', options: ['Intervention', 'Non-interference', 'Collective action', 'Democratic governance'], correct: 1 },
+                    { q: 'Which ASEAN country is NOT in Southeast Asia?', options: ['Timor-Leste', 'Papua New Guinea', 'All are in SEA', 'Myanmar'], correct: 2 },
+                    { q: 'What year was the ASEAN Charter adopted?', options: ['1997', '2003', '2007', '2015'], correct: 2 }
+                ]
+            };
+
+            let selectedQuestions = (multipleChoiceBank[topic] || multipleChoiceBank.constitution).slice(0, count);
+            quizData = selectedQuestions;
+            userAnswers = {};
+
+            let quizHTML = '';
+            selectedQuestions.forEach((item, index) => {
+                quizHTML += `
+                    <div class="quiz-question">
+                        <strong>Question ${index + 1}:</strong> ${item.q}
+                        <div class="quiz-options">
+                            ${item.options.map((opt, i) => `
+                                <div class="quiz-option" onclick="selectAnswer(${index}, ${i})">
+                                    <input type="radio" name="q${index}" id="q${index}_${i}" value="${i}" style="margin-right: 8px;">
+                                    <label for="q${index}_${i}" style="cursor: pointer; margin: 0;">${opt}</label>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            });
+
+            document.getElementById('quizContainer').innerHTML = quizHTML;
+            document.getElementById('submitQuiz').style.display = 'block';
+            document.getElementById('quizResults').style.display = 'none';
+            showNotification('Quiz Ready!', `${count} questions loaded. Good luck!`, 'success');
+        }
+
+        function selectAnswer(questionIndex, optionIndex) {
+            userAnswers[questionIndex] = optionIndex;
+            const options = document.querySelectorAll(`input[name="q${questionIndex}"]`);
+            options.forEach(opt => opt.parentElement.classList.remove('selected'));
+            options[optionIndex].parentElement.classList.add('selected');
+        }
+
+        function checkAnswers() {
+            let correct = 0;
+            let totalQuestions = quizData.length;
+            
+            quizData.forEach((item, index) => {
+                const userAnswer = userAnswers[index];
+                const options = document.querySelectorAll(`input[name="q${index}"]`);
+                
+                options.forEach((opt, i) => {
+                    opt.parentElement.classList.remove('selected');
+                    if (i === item.correct) {
+                        opt.parentElement.classList.add('correct');
+                    }
+                    if (userAnswer === i && i !== item.correct) {
+                        opt.parentElement.classList.add('incorrect');
+                    }
+                });
+
+                if (userAnswer === item.correct) correct++;
+            });
+
+            const percentage = Math.round((correct / totalQuestions) * 100);
+            let grade, message, emoji;
+            
+            if (percentage >= 90) {
+                grade = 'Excellent Performance';
+                message = 'Outstanding! Dean\'s Lister material! Keep it up! 🏆';
+                emoji = '🌟';
+            } else if (percentage >= 80) {
+                grade = 'Very Good';
+                message = 'Great work! You\'re on the right track. 👏';
+                emoji = '🎯';
+            } else if (percentage >= 70) {
+                grade = 'Good';
+                message = 'Nice effort! Review the missed items for mastery. 📚';
+                emoji = '👍';
+            } else if (percentage >= 60) {
+                grade = 'Satisfactory';
+                message = 'You passed, but more review is needed. Keep studying! 💪';
+                emoji = '📖';
+            } else {
+                grade = 'Needs Improvement';
+                message = 'Don\'t give up! Review the material and try again. 🔄';
+                emoji = '📝';
+            }
+
+            const resultsHTML = `
+                <div style="background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-hover) 100%); border-radius: 12px; padding: 40px; color: white; text-align: center; margin-bottom: 24px;">
+                    <div style="font-size: 3.5rem; margin-bottom: 12px;">${emoji}</div>
+                    <h2 style="color: white; border: none; margin: 0 0 12px 0; font-size: 1.8rem;">${grade}</h2>
+                    <p style="font-size: 2.5rem; font-weight: 700; margin: 16px 0; line-height: 1;">${correct} / ${totalQuestions}</p>
+                    <p style="font-size: 1.4rem; margin-bottom: 12px; opacity: 0.95;">${percentage}%</p>
+                    <p style="font-size: 1rem; opacity: 0.9; margin: 0;">${message}</p>
+                </div>
+                <div class="card">
+                    <h3>Performance Breakdown</h3>
+                    <div style="margin: 20px 0;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+                            <span><strong>Your Score:</strong></span>
+                            <span>${correct} out of ${totalQuestions} correct</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${percentage}%;"></div>
+                        </div>
+                    </div>
+                    <div style="margin-top: 24px;">
+                        <p style="font-weight: 600; margin-bottom: 12px;">📌 Next Steps:</p>
+                        <ul style="padding-left: 20px; color: var(--color-text-secondary);">
+                            ${percentage < 70 ? `
+                                <li>Review the topics thoroughly using the Summarizer tool</li>
+                                <li>Use Flashcards to reinforce difficult concepts</li>
+                                <li>Take more practice quizzes to improve your score</li>
+                            ` : percentage < 90 ? `
+                                <li>Review the questions you missed for deeper understanding</li>
+                                <li>Practice similar questions until you achieve mastery</li>
+                                <li>Try quizzes on related or more advanced topics</li>
+                            ` : `
+                                <li>Excellent work! Explore other topics to broaden your knowledge</li>
+                                <li>Help classmates understand these concepts</li>
+                                <li>Challenge yourself with more advanced material</li>
+                            `}
+                        </ul>
+                    </div>
+                    <div style="margin-top: 24px; text-align: center; display: flex; gap: 12px; justify-content: center;">
+                        <button onclick="generateQuiz()" style="padding: 12px 24px;">Take Another Quiz</button>
+                        <button onclick="showSection('home')" class="btn-secondary" style="padding: 12px 24px;">Back to Home</button>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('quizResults').innerHTML = resultsHTML;
+            document.getElementById('quizResults').style.display = 'block';
+            document.getElementById('submitQuiz').style.display = 'none';
+            
+            showNotification('Quiz Complete!', `You scored ${percentage}% - ${grade}!`, percentage >= 70 ? 'success' : 'warning');
+        }
+
+        function loadFlashcards() {
+            const topic = document.getElementById('flashcardTopic').value;
+            
+            const flashcardBanks = {
+                constitution: [
+                    { front: 'Sovereignty', back: 'Supreme power residing in the people. In PH: Popular sovereignty expressed through elections and referenda.' },
+                    { front: 'Separation of Powers', back: 'Division of government into three branches (Executive, Legislative, Judicial) with checks and balances.' },
+                    { front: 'Social Justice', back: 'Equal distribution of wealth and opportunities. Article II, Sec 10: "Promote social justice in all phases of national development."' },
+                    { front: 'Due Process', back: 'Constitutional guarantee that laws shall not be unreasonable and that fair procedures are followed.' }
+                ],
+                political: [
+                    { front: 'Political Dynasty', back: 'Concentration of political power in families across generations. Major issue in PH politics (Marcos, Aquino, Duterte families).' },
+                    { front: 'Patronage Politics', back: 'Political support exchanged for personal favors. Common in PH: "utang na loob" culture affecting governance.' },
+                    { front: 'Pork Barrel', back: 'Funds allocated to legislators for local projects. Controversial in PH - Priority Development Assistance Fund (PDAF) was declared unconstitutional.' },
+                    { front: 'Party-List System', back: 'Electoral system for marginalized sectors. At least 20% of House seats reserved for party-list representatives.' }
+                ],
+                historical: [
+                    { front: 'Martial Law (1972-1981)', back: 'Marcos declared martial law on Sept 21, 1972. Suspended civil rights, controlled media, arrested opposition.' },
+                    { front: 'EDSA Revolution (1986)', back: 'Peaceful uprising Feb 22-25, 1986. Ended Marcos dictatorship, restored democracy, installed Cory Aquino.' },
+                    { front: 'EDSA Dos (2001)', back: 'Second People Power. Ousted President Estrada due to corruption, replaced by VP Gloria Arroyo.' },
+                    { front: 'Comprehensive Agrarian Reform', back: 'CARP (RA 6657) enacted 1988 under Cory Aquino. Aimed to distribute land to farmers.' }
+                ],
+                institutions: [
+                    { front: 'COMELEC', back: 'Commission on Elections. Constitutional body enforcing election laws, conducting elections, ensuring fair processes.' },
+                    { front: 'Ombudsman', back: 'Independent office investigating and prosecuting government officials for graft and corruption.' },
+                    { front: 'Civil Service Commission', back: 'Constitutional body governing civil service, administering CSE, ensuring merit-based hiring.' },
+                    { front: 'Sangguniang Kabataan', back: 'Youth council in barangays. Members aged 18-24, represents youth in local governance.' }
+                ]
+            };
+
+            flashcardsData = flashcardBanks[topic];
+            currentFlashcardIndex = 0;
+            displayFlashcard();
+        }
+
+        function displayFlashcard() {
+            if (flashcardsData.length === 0) {
+                loadFlashcards();
+                return;
+            }
+
+            const card = flashcardsData[currentFlashcardIndex];
+            document.getElementById('flashcardDisplay').innerHTML = `
+                <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                    <h2>${card.front}</h2>
+                    <p style="color: var(--color-text-secondary); margin-top: 20px;">(Click to flip)</p>
+                </div>
+                <p style="text-align: center; color: var(--color-text-secondary); margin-top: 10px;">
+                    Card ${currentFlashcardIndex + 1} of ${flashcardsData.length}
+                </p>
+            `;
+        }
+
+        function nextFlashcard() {
+            currentFlashcardIndex = (currentFlashcardIndex + 1) % flashcardsData.length;
+            displayFlashcard();
+        }
+
+        function prevFlashcard() {
+            currentFlashcardIndex = currentFlashcardIndex === 0 ? flashcardsData.length - 1 : currentFlashcardIndex - 1;
+            displayFlashcard();
+        }
+
+        function loadTimeline() {
+            const era = document.getElementById('timelineEra').value;
+            
+            const timelines = {
+                marcos: `
+                    <div class="timeline-item">
+                        <div class="timeline-year">1972</div>
+                        <strong>Martial Law Declared</strong>
+                        <p>September 21: Marcos signs Proclamation 1081, suspending writ of habeas corpus and civil liberties.</p>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-year">1973</div>
+                        <strong>New Constitution</strong>
+                        <p>1973 Constitution ratified, establishing parliamentary system with Marcos as Prime Minister.</p>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-year">1983</div>
+                        <strong>Ninoy Aquino Assassination</strong>
+                        <p>August 21: Benigno "Ninoy" Aquino Jr. assassinated at Manila airport, sparking massive protests.</p>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-year">1986</div>
+                        <strong>Snap Elections</strong>
+                        <p>February 7: Marcos vs. Aquino elections marred by fraud and violence.</p>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-year">1986</div>
+                        <strong>EDSA People Power</strong>
+                        <p>February 22-25: Millions gather at EDSA. Marcos flees to Hawaii. Cory Aquino sworn in as President.</p>
+                    </div>
+                `,
+                postEdsa: `
+                    <div class="timeline-item">
+                        <div class="timeline-year">1987</div>
+                        <strong>New Constitution Ratified</strong>
+                        <p>February 2: 1987 Constitution approved by plebiscite, restoring presidential system.</p>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-year">1992</div>
+                        <strong>Fidel V. Ramos Presidency</strong>
+                        <p>First peaceful transfer of power post-EDSA. Economic reforms and peace talks.</p>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-year">2001</div>
+                        <strong>EDSA Dos</strong>
+                        <p>President Estrada ousted due to corruption. VP Gloria Arroyo becomes president.</p>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-year">2016</div>
+                        <strong>Rodrigo Duterte Presidency</strong>
+                        <p>War on drugs, independent foreign policy, infrastructure programs (Build Build Build).</p>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-year">2022</div>
+                        <strong>Marcos Jr. Returns</strong>
+                        <p>Ferdinand "Bongbong" Marcos Jr. elected president, marking Marcos family's return after 36 years.</p>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-year">2026</div>
+                        <strong>Current Developments</strong>
+                        <p>Bangsamoro parliamentary elections pending, continued infrastructure development, ASEAN leadership.</p>
+                    </div>
+                `,
+                presidents: `
+                    <div class="timeline-item">
+                        <div class="timeline-year">1986-1992</div>
+                        <strong>Corazon C. Aquino</strong>
+                        <p>First female president. Restored democracy, drafted 1987 Constitution, survived coup attempts.</p>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-year">1992-1998</div>
+                        <strong>Fidel V. Ramos</strong>
+                        <p>Economic liberalization, peace agreements with rebels, power crisis solutions.</p>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-year">1998-2001</div>
+                        <strong>Joseph E. Estrada</strong>
+                        <p>Popular mandate but ousted by EDSA Dos due to corruption allegations.</p>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-year">2001-2010</div>
+                        <strong>Gloria Macapagal-Arroyo</strong>
+                        <p>Economic growth amid political controversies. Strong peso, fiscal discipline.</p>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-year">2010-2016</div>
+                        <strong>Benigno S. Aquino III</strong>
+                        <p>Good governance agenda, anti-corruption drive, economic growth, but Mamasapano tragedy.</p>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-year">2016-2022</div>
+                        <strong>Rodrigo R. Duterte</strong>
+                        <p>War on drugs, infrastructure boom, independent foreign policy, Bangsamoro Organic Law.</p>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-year">2022-Present</div>
+                        <strong>Ferdinand R. Marcos Jr.</strong>
+                        <p>Continuation of infrastructure projects, balancing US-China relations, economic recovery.</p>
+                    </div>
+                `,
+                constitutions: `
+                    <div class="timeline-item">
+                        <div class="timeline-year">1899</div>
+                        <strong>Malolos Constitution</strong>
+                        <p>First Philippine constitution. Established First Philippine Republic under Emilio Aguinaldo.</p>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-year">1935</div>
+                        <strong>Commonwealth Constitution</strong>
+                        <p>Prepared Philippines for independence. Presidential system, bicameral legislature.</p>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-year">1973</div>
+                        <strong>Marcos Constitution</strong>
+                        <p>Parliamentary system with Marcos as PM. Ratified under martial law conditions.</p>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-year">1987</div>
+                        <strong>Current Constitution</strong>
+                        <p>Restored democracy post-EDSA. Presidential system, strong Bill of Rights, autonomous regions.</p>
+                    </div>
+                `
+            };
+
+            document.getElementById('timelineDisplay').innerHTML = timelines[era];
+        }
+
+        function loadNews() {
+            const today = new Date().toISOString().split('T')[0];
+
+            const defaultNewsItems = [
+                {
+                    date: 'January 30, 2026',
+                    title: 'BARMM Approves Transitional Justice Law',
+                    content: 'The Bangsamoro Parliament unanimously approved the Bangsamoro Transitional Justice and Reconciliation Act of 2026 to address historical injustices in the region.',
+                    relevance: 'Important for understanding peace process and regional autonomy'
+                },
+                {
+                    date: 'January 29, 2026',
+                    title: 'COMELEC: BARMM Elections Proposed for September 2026',
+                    content: 'The Commission on Elections stated that the first Bangsamoro Parliamentary Elections can be held in September 2026 at the earliest due to compressed timelines.',
+                    relevance: 'Key development in Bangsamoro transition and electoral politics'
+                },
+                {
+                    date: 'January 2026',
+                    title: 'Charter Change Debates Continue',
+                    content: 'Discussions on constitutional amendments persist, with focus on economic provisions and federal structure proposals.',
+                    relevance: 'Affects constitutional law and political structure studies'
+                },
+                {
+                    date: 'Ongoing',
+                    title: 'West Philippine Sea Tensions',
+                    content: 'Continued territorial disputes with China over maritime zones. PH maintains international law stance based on 2016 arbitral ruling.',
+                    relevance: 'Critical for international relations and Philippine foreign policy'
+                },
+                {
+                    date: '2026 Outlook',
+                    title: 'ASEAN Summit Preparations',
+                    content: 'Philippines participating in ASEAN initiatives for regional integration, trade agreements, and security cooperation.',
+                    relevance: 'Important for comparative politics and regional studies'
+                }
+            ];
+
+            const customArticles = getStoredArticles()
+                .filter(article => article.date <= today)
+                .sort((a, b) => new Date(b.date) - new Date(a.date))
+                .map(article => ({
+                    date: formatDateForDisplay(article.date),
+                    title: article.title,
+                    content: article.content,
+                    relevance: article.relevance
+                }));
+
+            const newsItems = [...customArticles, ...defaultNewsItems];
+
+            let newsHTML = '';
+            if (newsItems.length === 0) {
+                newsHTML = '<p style="color: var(--color-text-secondary); text-align: center; padding: 20px;'>No articles available at this time.</p>';
+            } else {
+                newsItems.forEach(item => {
+                    const linkHTML = item.link ? `<p style="margin-top:8px;"><a href="${item.link}" target="_blank" rel="noopener" style="color: var(--color-accent); font-weight:600;">Read full article →</a></p>` : '';
+                    newsHTML += `
+                        <div class="news-item">
+                            <div class="news-date">${item.date}</div>
+                            <h4 style="color: var(--color-accent); margin-bottom: 8px;">${item.title}</h4>
+                            <p style="margin-bottom: 8px;">${item.content}</p>
+                            ${linkHTML}
+                            <p style="color: var(--color-text-secondary); font-style: italic; font-size: 0.9rem; margin-top:10px;">
+                                📌 ${item.relevance}
+                            </p>
+                        </div>
+                    `;
+                });
+            }
+
+            document.getElementById('newsDisplay').innerHTML = newsHTML;
+        }
+
+        function formatDateForDisplay(dateStr) {
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            return new Date(dateStr).toLocaleDateString('en-US', options);
+        }
+
+        // Sidebar toggle override (ensures behavior is consistent and uses a side arrow)
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            const btn = document.getElementById('sidebarToggle');
+            if (!sidebar) return;
+            const isActive = sidebar.classList.toggle('active');
+            if (overlay) overlay.classList.toggle('active', isActive);
+            if (btn) {
+                btn.classList.toggle('active', isActive);
+                btn.setAttribute('aria-expanded', isActive ? 'true' : 'false');
+            }
+        }
+
+        // Close sidebar when clicking outside (for small screens)
+        document.addEventListener('click', function (e) {
+            const sidebar = document.getElementById('sidebar');
+            const toggle = document.getElementById('sidebarToggle');
+            const overlay = document.getElementById('sidebarOverlay');
+            if (!sidebar || !toggle) return;
+            if (sidebar.classList.contains('active')) {
+                const clickedInsideSidebar = sidebar.contains(e.target);
+                const clickedToggle = toggle === e.target || toggle.contains(e.target);
+                if (!clickedInsideSidebar && !clickedToggle) {
+                    sidebar.classList.remove('active');
+                    overlay && overlay.classList.remove('active');
+                    toggle.classList.remove('active');
+                    toggle.setAttribute('aria-expanded', 'false');
+                }
+            }
+        });
+
+        // Initialize
+        loadFlashcards();
+        loadTimeline();
+        loadNews();
+    </script>
+</body>
+</html>
